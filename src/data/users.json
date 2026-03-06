@@ -1,0 +1,17 @@
+[
+  {
+    "id": "ING001",
+    "nombre": "Juan Pérez",
+    "rol": "Ingeniero de Campo"
+  },
+  {
+    "id": "TEC002",
+    "nombre": "María García",
+    "rol": "Técnico de Campo"
+  },
+  {
+    "id": "ADMIN",
+    "nombre": "Administrador",
+    "rol": "Admin"
+  }
+]
