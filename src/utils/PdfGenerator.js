@@ -125,6 +125,7 @@ const createPDFBlob = async (formData, user) => {
     cursorY += 12;
 
     const sections = [
+        { label: 'CATEGORÍA DE ACTIVIDAD', content: formData.categoria?.toUpperCase(), icon: '◈' },
         { label: 'AVANCE DE OBRA', content: formData.avance_porcentaje, color: quoiaGreen, icon: '●' },
         { label: 'ACTIVIDADES EJECUTADAS', content: formData.actividades, icon: '»' },
         { label: 'RETOS Y SOLUCIONES', content: formData.retos, highlight: zentrackOrange, icon: '!' },
