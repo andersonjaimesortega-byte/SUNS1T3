@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Mic, Save, ArrowLeft, Trash2, CheckCircle, MapPin, AlertCircle, Users, Package, FileEdit } from 'lucide-react';
+import { Camera, Mic, Save, ArrowLeft, Trash2, CheckCircle, MapPin, AlertCircle, Users, Package, FileEdit, History } from 'lucide-react';
 import { compressImage, fileToBase64 } from '../utils/ImageHandler';
 
 const CATEGORIES = [
@@ -43,20 +43,6 @@ const ReportForm = ({ onBack, onSave }) => {
         if (percentageMatch) extracted.avance_porcentaje = `${percentageMatch[1]}%`;
 
         // Split by keywords
-        const keywords = {
-            actividades: ['actividad', 'ejecut', 'haciendo', 'hicimos'],
-            retos: ['reto', 'problema', 'dificultad', 'solucion'],
-            pendientes: ['pendiente', 'falt', 'por hacer', 'mañana'],
-            novedades: ['novedad', 'extra', 'aviso', 'noticia', 'clima', 'lluvia']
-        };
-
-        let lastIndex = 0;
-        const keys = Object.keys(keywords);
-
-        // Simple logic to extract text blocks between keywords
-        const sections = lowerText.split(/\b(?:actividades|ejecutado|retos|problemas|pendientes|novedades)\b/i);
-
-        // This is a simplified version of the parser
         if (lowerText.includes('actividad')) {
             const block = text.split(/actividad/i)[1]?.split(/reto|pendiente|novedad/i)[0];
             if (block) extracted.actividades = block.trim().replace(/^[:\s\-]+/, '');
@@ -162,25 +148,6 @@ const ReportForm = ({ onBack, onSave }) => {
         }, 1000);
     };
 
-    const startVoiceCapture = (field) => {
-        if (!('webkitSpeechRecognition' in window)) {
-            alert('Tu navegador no soporta dictado por voz.');
-            return;
-        }
-
-        const recognition = new window.webkitSpeechRecognition();
-        recognition.lang = 'es-ES';
-        recognition.onstart = () => setActiveVoiceField(field);
-        recognition.onend = () => setActiveVoiceField(null);
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            setFormData(prev => ({
-                ...prev,
-                [field]: prev[field] ? `${prev[field]} ${transcript}` : transcript
-            }));
-        };
-        recognition.start();
-    };
     const startSmartVoiceCapture = () => {
         if (!('webkitSpeechRecognition' in window)) {
             alert('Tu navegador no soporta dictado por voz.');
@@ -199,19 +166,25 @@ const ReportForm = ({ onBack, onSave }) => {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-24">
-            <header className="bg-zinc-900 border-b border-zinc-800 p-4 sticky top-0 z-20 flex items-center gap-4">
-                <button onClick={onBack} className="p-2 -ml-2 text-zinc-400">
-                    <ArrowLeft />
+        <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] pb-24 font-[family:var(--font-primary)]">
+            <header className="bg-[var(--color-card)] border-b border-[var(--color-border)] p-5 sticky top-0 z-20 flex items-center gap-4 backdrop-blur-lg bg-opacity-80">
+                <button
+                    onClick={onBack}
+                    className="p-2.5 -ml-2 text-[var(--color-text-muted)] hover:text-[var(--color-quoia-primary)] hover:bg-[var(--color-quoia-primary)]/10 rounded-xl transition-all active:scale-95"
+                >
+                    <ArrowLeft className="w-6 h-6" />
                 </button>
-                <h1 className="text-lg font-bold">Nueva Bitácora Inteligente</h1>
+                <div>
+                    <h1 className="text-sm font-black uppercase tracking-[0.2em] text-[var(--color-quoia-primary)]">SunSite</h1>
+                    <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-0.5">Bitácora Oficial de Obra</p>
+                </div>
             </header>
 
             <form onSubmit={handleSubmit} className="p-4 space-y-6 max-w-2xl mx-auto">
                 {/* GPS Status Banner */}
                 <div className={`p-4 rounded-2xl flex items-center gap-3 border transition-all ${gpsStatus === 'success' ? 'bg-[var(--color-success)]/10 border-[var(--color-success)]/30 text-[var(--color-success)]' :
-                        gpsStatus === 'error' ? 'bg-[var(--color-error)]/10 border-[var(--color-error)]/30 text-[var(--color-error)]' :
-                            'bg-[var(--color-card)] border-[var(--color-border)] text-[var(--color-text-muted)]'
+                    gpsStatus === 'error' ? 'bg-[var(--color-error)]/10 border-[var(--color-error)]/30 text-[var(--color-error)]' :
+                        'bg-[var(--color-card)] border-[var(--color-border)] text-[var(--color-text-muted)]'
                     }`}>
                     {gpsStatus === 'success' ? <MapPin className="w-5 h-5 shadow-sm" /> :
                         gpsStatus === 'error' ? <AlertCircle className="w-5 h-5" /> :
@@ -315,10 +288,10 @@ const ReportForm = ({ onBack, onSave }) => {
                             disabled={!formData.categoria}
                             onClick={startSmartVoiceCapture}
                             className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-2xl ${activeVoiceField === 'smart'
-                                    ? 'bg-[var(--color-error)] text-white animate-pulse'
-                                    : formData.categoria
-                                        ? 'bg-[var(--color-quoia-primary)] text-[var(--color-background)] hover:scale-105 active:scale-95 shadow-[var(--color-quoia-primary)]/20'
-                                        : 'bg-[var(--color-border)] text-[var(--color-text-muted)] grayscale cursor-not-allowed'
+                                ? 'bg-[var(--color-error)] text-white animate-pulse'
+                                : formData.categoria
+                                    ? 'bg-[var(--color-quoia-primary)] text-[var(--color-background)] hover:scale-105 active:scale-95 shadow-[var(--color-quoia-primary)]/20'
+                                    : 'bg-[var(--color-border)] text-[var(--color-text-muted)] grayscale cursor-not-allowed'
                                 }`}
                         >
                             <Mic className="w-10 h-10" />
