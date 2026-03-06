@@ -33,7 +33,7 @@ export const prepareConsolidatedData = (selectedReports) => {
     const consolidateText = (field) => {
         return selectedReports
             .filter(r => r.data && r.data[field])
-            .map(r => `• [${r.minigranja || 'S/N'}] [${(r.data.categoria || 'S/C').toUpperCase()}] ${r.data[field]}`)
+            .map(r => `• [${r.minigranja || 'S/N'}] [${r.date || 'S/F'}] ${r.data[field]}`)
             .join('\n');
     };
 

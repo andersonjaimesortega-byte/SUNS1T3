@@ -125,12 +125,28 @@ const createPDFBlob = async (formData, user) => {
     cursorY += 12;
 
     const sections = [
-        { label: 'CATEGORÍA DE ACTIVIDAD', content: formData.categoria?.toUpperCase(), icon: '◈' },
         { label: 'AVANCE DE OBRA', content: formData.avance_porcentaje, color: quoiaGreen, icon: '●' },
-        { label: 'ACTIVIDADES EJECUTADAS', content: formData.actividades, icon: '»' },
-        { label: 'RETOS Y SOLUCIONES', content: formData.retos, highlight: zentrackOrange, icon: '!' },
-        { label: 'PENDIENTES Y PRÓXIMOS', content: formData.pendientes, icon: '○' },
-        { label: 'NOVEDADES / CLIMA', content: formData.novedades, icon: '*' }
+        {
+            label: 'ACTIVIDADES EJECUTADAS',
+            content: formData.isConsolidated ? formData.actividades : (formData.actividades ? `[${formData.date || new Date().toLocaleDateString()}] ${formData.actividades}` : null),
+            icon: '»'
+        },
+        {
+            label: 'RETOS Y SOLUCIONES',
+            content: formData.isConsolidated ? formData.retos : (formData.retos ? `[${formData.date || new Date().toLocaleDateString()}] ${formData.retos}` : null),
+            highlight: zentrackOrange,
+            icon: '!'
+        },
+        {
+            label: 'PENDIENTES Y PRÓXIMOS',
+            content: formData.isConsolidated ? formData.pendientes : (formData.pendientes ? `[${formData.date || new Date().toLocaleDateString()}] ${formData.pendientes}` : null),
+            icon: '○'
+        },
+        {
+            label: 'NOVEDADES / CLIMA',
+            content: formData.isConsolidated ? formData.novedades : (formData.novedades ? `[${formData.date || new Date().toLocaleDateString()}] ${formData.novedades}` : null),
+            icon: '*'
+        }
     ];
 
     sections.forEach(section => {

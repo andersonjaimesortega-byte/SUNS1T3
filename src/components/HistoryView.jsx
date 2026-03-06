@@ -76,13 +76,13 @@ const HistoryView = ({ onBack, user }) => {
     };
 
     const handleSingleDownload = (report) => {
-        generateReportPDF(report.data, user);
+        generateReportPDF({ ...report.data, date: report.date }, user);
     };
 
     const handleShare = async (report, e) => {
         e.stopPropagation();
         try {
-            const file = await generateReportFile(report.data, user);
+            const file = await generateReportFile({ ...report.data, date: report.date }, user);
             if (navigator.share) {
                 await navigator.share({
                     files: [file],
