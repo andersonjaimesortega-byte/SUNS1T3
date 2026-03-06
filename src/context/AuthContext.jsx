@@ -11,19 +11,28 @@ export const AuthProvider = ({ children }) => {
 
     const syncUsers = async () => {
         try {
+            console.log('Attempting to sync with Supabase...');
             const { data, error } = await supabase.from('users').select('*');
             if (error) throw error;
             if (data) {
+                console.log('Sync successful, users found:', data.length);
                 setUsersList(data);
                 localStorage.setItem('cached_users', JSON.stringify(data));
                 return data;
             }
         } catch (error) {
-            console.warn('Sync failed, using cache:', error.message);
+            console.error('Supabase sync failed:', error.message);
             const cached = localStorage.getItem('cached_users');
-            const list = cached ? JSON.parse(cached) : localUsers;
-            setUsersList(list);
-            return list;
+            if (cached) {
+                console.log('Using cached users from localStorage');
+                const list = JSON.parse(cached);
+                setUsersList(list);
+                return list;
+            } else {
+                console.log('No cache found, using local JSON fallback:', localUsers);
+                setUsersList(localUsers);
+                return localUsers;
+            }
         }
     };
 
@@ -61,12 +70,19 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = (userId) => {
-        const foundUser = usersList.find(u => u.id === userId);
+        const cleanId = userId.trim().toUpperCase();
+        console.log('Attempting login with ID:', cleanId);
+        console.log('Available users in current list:', usersList.map(u => u.id));
+
+        const foundUser = usersList.find(u => u.id === cleanId);
+
         if (foundUser) {
+            console.log('Login successful for:', foundUser.nombre);
             setUser(foundUser);
             localStorage.setItem('minigranja_user', JSON.stringify(foundUser));
             return { success: true };
         }
+        console.warn('Login failed: ID not found in current list');
         return { success: false, message: 'ID de usuario no válido' };
     };
 
