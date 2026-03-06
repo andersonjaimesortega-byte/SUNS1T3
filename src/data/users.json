@@ -1,13 +1,18 @@
 [
   {
-    "id": "ING001",
-    "nombre": "Juan Pérez",
+    "id": "ANDREA",
+    "nombre": "Andrea",
     "rol": "Ingeniero de Campo"
   },
   {
-    "id": "TEC002",
-    "nombre": "María García",
+    "id": "TOBAR",
+    "nombre": "Tobar",
     "rol": "Técnico de Campo"
+  },
+  {
+    "id": "JUAN",
+    "nombre": "Juan",
+    "rol": "Ingeniero de Campo"
   },
   {
     "id": "ADMIN",

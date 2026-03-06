@@ -3,12 +3,19 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import ReportForm from './components/ReportForm';
 import { generateReportPDF } from './utils/PdfGenerator';
-import { LogOut, ClipboardCheck, PlusCircle, History, Settings, FileText } from 'lucide-react';
+import { LogOut, ClipboardCheck, PlusCircle, History, Settings, FileText, RefreshCw } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, syncUsers } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [reports, setReports] = useState([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    await syncUsers();
+    setTimeout(() => setIsSyncing(false), 1000);
+  };
 
   const handleSaveReport = async (formData) => {
     const filename = await generateReportPDF(formData, user);
@@ -34,13 +41,23 @@ const Dashboard = () => {
             <h1 className="text-xl font-bold text-emerald-500">Minigranjas</h1>
             <p className="text-xs text-zinc-400">ID: {user?.id} • {user?.nombre}</p>
           </div>
-          <button
-            onClick={logout}
-            className="p-2 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
-            title="Cerrar Sesión"
-          >
-            <LogOut className="w-6 h-6" />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
+              className={`p-2 text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 rounded-lg transition-all ${isSyncing ? 'animate-spin text-emerald-500' : ''}`}
+              title="Sincronizar Usuarios"
+            >
+              <RefreshCw className="w-6 h-6" />
+            </button>
+            <button
+              onClick={logout}
+              className="p-2 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
+              title="Cerrar Sesión"
+            >
+              <LogOut className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </header>
 

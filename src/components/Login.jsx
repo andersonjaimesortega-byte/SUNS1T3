@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, ShieldCheck } from 'lucide-react';
+import { LogIn, ShieldCheck, RefreshCw } from 'lucide-react';
 
 const Login = () => {
     const [userId, setUserId] = useState('');
     const [error, setError] = useState('');
-    const { login } = useAuth();
+    const [isSyncing, setIsSyncing] = useState(false);
+    const { login, syncUsers } = useAuth();
+
+    const handleSync = async () => {
+        setIsSyncing(true);
+        await syncUsers();
+        setTimeout(() => setIsSyncing(false), 1000);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -56,6 +63,17 @@ const Login = () => {
                         Entrar al Sistema
                     </button>
                 </form>
+
+                <div className="mt-6 flex justify-center">
+                    <button
+                        onClick={handleSync}
+                        disabled={isSyncing}
+                        className="flex items-center gap-2 text-zinc-500 hover:text-emerald-500 text-sm transition-colors"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                        {isSyncing ? 'Sincronizando...' : 'Sincronizar Usuarios'}
+                    </button>
+                </div>
 
                 <p className="mt-8 text-center text-xs text-zinc-500">
                     Uso exclusivo para personal autorizado de Minigranjas.
