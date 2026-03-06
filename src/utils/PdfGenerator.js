@@ -26,23 +26,36 @@ export const generateReportPDF = async (formData, user) => {
     // User Info
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Información del Personal', margin, cursorY);
+    doc.text('Información del Personal y Ubicación', margin, cursorY);
     cursorY += 7;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.text(`Nombre: ${user.nombre}`, margin, cursorY);
     doc.text(`ID Usuario: ${user.id}`, pageWidth / 2, cursorY);
+    cursorY += 7;
+
+    if (formData.gps_location) {
+        doc.text(`Coordenadas GPS: ${formData.gps_location.lat.toFixed(6)}, ${formData.gps_location.lng.toFixed(6)}`, margin, cursorY);
+        doc.text(`Sincronización GPS: ${new Date(formData.gps_location.timestamp).toLocaleTimeString()}`, pageWidth / 2, cursorY);
+        cursorY += 7;
+    }
+
+    doc.text(`Personal en Obra: ${formData.cantidad_personal || 'No especificado'}`, margin, cursorY);
     cursorY += 15;
 
     // Form Data
     const sections = [
+        { title: 'Materiales Recibidos', content: formData.materiales_recibidos },
         { title: 'Avances del Día', content: formData.avances },
         { title: 'Actividades Realizadas', content: formData.actividades },
         { title: 'Retos / Problemas', content: formData.retos },
-        { title: 'Pendientes', content: formData.pendientes }
+        { title: 'Pendientes', content: formData.pendientes },
+        { title: 'Observaciones Extra', content: formData.observaciones_extra }
     ];
 
     sections.forEach(section => {
+        if (!section.content) return; // Skip empty optional sections
+
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.text(section.title, margin, cursorY);
@@ -50,11 +63,11 @@ export const generateReportPDF = async (formData, user) => {
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        const splitText = doc.splitTextToSize(section.content || 'Sin información registrada.', pageWidth - (margin * 2));
+        const splitText = doc.splitTextToSize(section.content, pageWidth - (margin * 2));
         doc.text(splitText, margin, cursorY);
-        cursorY += (splitText.length * 5) + 10;
+        cursorY += (splitText.length * 5) + 12;
 
-        if (cursorY > 250) {
+        if (cursorY > 260) {
             doc.addPage();
             cursorY = 20;
         }
