@@ -40,9 +40,14 @@ const HistoryView = ({ onBack, user }) => {
     const handleGenerateSummary = async () => {
         try {
             const selectedData = reports.filter(r => selectedIds.includes(r.id));
+            if (selectedData.length === 0) {
+                alert('No has seleccionado ningún reporte para consolidar.');
+                return;
+            }
             await generateConsolidatedReport(selectedData, user);
         } catch (error) {
-            alert('Error al consolidar reportes. Revisa que los datos sean válidos.');
+            console.error('Detailed Consolidation Error:', error);
+            alert(`No se pudo consolidar: ${error.message}. Por favor revisa que los reportes no tengan datos corruptos.`);
         }
     };
 
