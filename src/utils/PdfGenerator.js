@@ -54,11 +54,6 @@ const createPDFBlob = async (formData, user) => {
     doc.text('ID Minigranja:', margin, cursorY);
     doc.setFont('helvetica', 'normal');
     doc.text(formData.minigranjaId || 'N/A', margin + 30, cursorY);
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Supervisor:', pageWidth / 2, cursorY);
-    doc.setFont('helvetica', 'normal');
-    doc.text(user.nombre, pageWidth / 2 + 25, cursorY);
     cursorY += 8;
 
     if (formData.gps_location) {

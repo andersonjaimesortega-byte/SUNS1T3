@@ -125,18 +125,26 @@ const ReportForm = ({ onBack, onSave }) => {
         setFormData(prev => ({ ...prev, fotos: [...prev.fotos, ...compressedFiles] }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.fotos.length === 0) {
             alert('Mínimo 1 foto requerida.');
             return;
         }
         setIsSaving(true);
-        setTimeout(() => {
-            onSave(formData);
-            localStorage.removeItem('report_draft');
+        try {
+            await onSave(formData);
+            localStorage.removeItem('reportFormDraft'); // New line as per instruction
+            localStorage.removeItem('report_draft'); // Remove the draft on successful save
+        } catch (error) {
+            console.error('Error saving report:', error);
+            // If onSave fails, we might want to keep the draft or handle it differently
+            // The instruction implies moving report_draft removal to catch, but it's more logical to remove it on success.
+            // For now, following the instruction's implied structure for 'report_draft' removal on error.
+            localStorage.removeItem('report_draft'); // As per instruction's snippet, remove on error too.
+        } finally {
             setIsSaving(false);
-        }, 800);
+        }
     };
 
     const startSmartVoiceCapture = () => {
@@ -160,8 +168,8 @@ const ReportForm = ({ onBack, onSave }) => {
             {[1, 2, 3, 4].map(i => (
                 <div key={i} className="flex items-center">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${step === i ? 'bg-[var(--color-quoia-primary)] text-[var(--color-background)] scale-110 shadow-lg shadow-[var(--color-quoia-primary)]/20' :
-                            step > i ? 'bg-[var(--color-success)]/20 text-[var(--color-success)] border border-[var(--color-success)]/30' :
-                                'bg-[var(--color-card)] text-[var(--color-text-muted)] border border-[var(--color-border)]'
+                        step > i ? 'bg-[var(--color-success)]/20 text-[var(--color-success)] border border-[var(--color-success)]/30' :
+                            'bg-[var(--color-card)] text-[var(--color-text-muted)] border border-[var(--color-border)]'
                         }`}>
                         {step > i ? <CheckCircle className="w-4 h-4" /> : i}
                     </div>

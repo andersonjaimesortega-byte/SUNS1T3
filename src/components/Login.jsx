@@ -60,7 +60,7 @@ const Login = () => {
                 </form>
 
                 <p className="mt-10 text-center text-[10px] text-[var(--color-text-muted)] font-medium leading-relaxed uppercase tracking-wider opacity-60">
-                    Solenium Engineering Division<br />Sunsite Digital Project © 2024
+                    Solenium Development Division<br />Sunsite Digital Project © 2026
                 </p>
             </div>
         </div>
