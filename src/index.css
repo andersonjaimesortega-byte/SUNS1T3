@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -30,9 +28,9 @@ body {
 }
 
 /* Ensure accessible touch targets */
-button, 
-input, 
-select, 
+button,
+input,
+select,
 textarea {
   min-height: 44px;
   min-width: 44px;
