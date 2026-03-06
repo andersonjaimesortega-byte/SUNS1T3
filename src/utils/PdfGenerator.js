@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 
-export const generateReportPDF = async (formData, user) => {
+const createPDFBlob = async (formData, user) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 20;
@@ -143,6 +143,17 @@ export const generateReportPDF = async (formData, user) => {
     const catShort = (formData.categoria || 'Bitacora').substring(0, 10).replace(/\s+/g, '');
     const filename = `${catShort}_${formData.minigranjaId}_${dateStr}.pdf`;
 
+    return { doc, filename };
+};
+
+export const generateReportPDF = async (formData, user) => {
+    const { doc, filename } = await createPDFBlob(formData, user);
     doc.save(filename);
     return filename;
+};
+
+export const generateReportFile = async (formData, user) => {
+    const { doc, filename } = await createPDFBlob(formData, user);
+    const blob = doc.output('blob');
+    return new File([blob], filename, { type: 'application/pdf' });
 };
