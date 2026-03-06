@@ -6,116 +6,158 @@ const createPDFBlob = async (formData, user) => {
     const margin = 20;
     let cursorY = 20;
 
-    // Header
-    doc.setFillColor(16, 185, 129); // Emerald-500
-    doc.rect(0, 0, pageWidth, 45, 'F');
+    // Colors RGB approximations
+    const quoiaGreen = [184, 207, 62];
+    const zentrackOrange = [253, 156, 16];
+
+    // Header Institutional
+    doc.setFillColor(...quoiaGreen);
+    doc.rect(0, 0, pageWidth, 50, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(20);
+    doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
-    doc.text('BITÁCORA DIARIA DE OBRA', margin, 20);
+    doc.text('REPORTE DIARIO DE OBRA', margin, 22);
 
-    doc.setFontSize(11);
+    doc.setFontSize(14);
+    doc.text('SUNSITE • SOLENIUM', margin, 32);
+
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     const categoryName = formData.categoria || 'Sin Categoría';
-    doc.text(`Categoría: ${categoryName.toUpperCase()}`, margin, 32);
+    doc.text(`Bitácora: ${categoryName.toUpperCase()}`, margin, 42);
 
     doc.setFontSize(9);
-    doc.text(`ID Minigranja: ${formData.minigranjaId}`, margin, 40);
-    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, pageWidth - margin - 40, 40);
+    doc.text(`ID: ${formData.minigranjaId}`, pageWidth - margin - 40, 22, { align: 'right' });
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, pageWidth - margin, 22, { align: 'right' });
+    doc.text(`Emitido por: ${user.nombre}`, pageWidth - margin, 32, { align: 'right' });
 
-    cursorY = 55;
+    cursorY = 65;
     doc.setTextColor(40, 40, 40);
 
     // Section 1: Identification & Location
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('1. IDENTIFICACIÓN Y UBICACIÓN', margin, cursorY);
-    cursorY += 8;
+    doc.setTextColor(...quoiaGreen);
+    doc.text('1. IDENTIFICACIÓN Y GEOLOCALIZACIÓN', margin, cursorY);
+    doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
+    cursorY += 10;
 
+    doc.setTextColor(40, 40, 40);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Supervisor: ${user.nombre} (${user.id})`, margin, cursorY);
+    doc.text(`ID Minigranja: ${formData.minigranjaId}`, margin, cursorY);
+    doc.text(`Supervisor en Campo: ${user.nombre}`, pageWidth / 2, cursorY);
     cursorY += 6;
 
     if (formData.gps_location) {
-        doc.text(`GPS: [Lat: ${formData.gps_location.lat.toFixed(6)}, Lng: ${formData.gps_location.lng.toFixed(6)}]`, margin, cursorY);
-        doc.text(`Hora GPS: ${new Date(formData.gps_location.timestamp).toLocaleTimeString()}`, pageWidth / 2, cursorY);
-        cursorY += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Coordenadas de Verificación:', margin, cursorY);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Lat: ${formData.gps_location.lat.toFixed(6)} | Lng: ${formData.gps_location.lng.toFixed(6)}`, margin + 55, cursorY);
+        doc.text(`Timestamp: ${new Date(formData.gps_location.timestamp).toLocaleString()}`, margin, cursorY + 6);
+        cursorY += 14;
     }
 
     // Section 2: Resources
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('2. RECURSOS (PERSONAL Y MATERIALES)', margin, cursorY);
-    cursorY += 8;
+    doc.setTextColor(...quoiaGreen);
+    doc.text('2. RECURSOS Y PERSONAL SOLENIUM', margin, cursorY);
+    doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
+    cursorY += 10;
 
+    doc.setTextColor(40, 40, 40);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Personal Solenium: ${formData.personal_solenium || '0'}`, margin, cursorY);
-    doc.text(`Personal Contratista: ${formData.personal_contratista || '0'}`, pageWidth / 2, cursorY);
-    cursorY += 8;
 
-    const matStatus = formData.materiales_llegaron ? 'SÍ LLEGÓ' : 'NO LLEGÓ';
+    // Create a mini grid for personal
+    doc.setFillColor(245, 245, 245);
+    doc.rect(margin, cursorY - 5, (pageWidth - margin * 2) / 2 - 5, 12, 'F');
+    doc.rect(pageWidth / 2 + 2, cursorY - 5, (pageWidth - margin * 2) / 2 - 5, 12, 'F');
+
+    doc.text(`Personal Solenium: ${formData.personal_solenium || '0'}`, margin + 5, cursorY + 2);
+    doc.text(`Personal Contratista: ${formData.personal_contratista || '0'}`, pageWidth / 2 + 7, cursorY + 2);
+    cursorY += 15;
+
+    const matStatus = formData.materiales_llegaron ? 'INGRESÓ MATERIAL' : 'SIN NOVEDAD EN MATERIALES';
     doc.setFont('helvetica', 'bold');
-    doc.text(`Ingreso de Material: ${matStatus}`, margin, cursorY);
+    doc.text(matStatus, margin, cursorY);
     cursorY += 6;
 
     if (formData.materiales_llegaron && formData.materiales_detalle) {
         doc.setFont('helvetica', 'normal');
-        const matDetail = doc.splitTextToSize(`Detalle: ${formData.materiales_detalle}`, pageWidth - (margin * 2));
+        const matDetail = doc.splitTextToSize(`Detalle de insumos: ${formData.materiales_detalle}`, pageWidth - (margin * 2));
         doc.text(matDetail, margin, cursorY);
         cursorY += (matDetail.length * 5) + 6;
     }
-    cursorY += 6;
+    cursorY += 10;
 
-    // Section 3: Work Bitácora (Smart Block)
-    doc.setFontSize(12);
+    // Section 3: Bitácora Block
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.setFillColor(240, 240, 240);
-    doc.rect(margin, cursorY - 5, pageWidth - (margin * 2), 8, 'F');
-    doc.text('3. DESARROLLO DE ACTIVIDADES', margin + 2, cursorY + 1);
+    doc.setTextColor(...quoiaGreen);
+    doc.text('3. DESARROLLO TÉCNICO Y AVANCES', margin, cursorY);
+    doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
     cursorY += 12;
 
     const bitacoraSections = [
-        { label: 'AVANCE DEL DÍA', content: formData.avance_porcentaje, color: [16, 185, 129] },
+        { label: 'AVANCE PORCENTUAL', content: formData.avance_porcentaje, color: quoiaGreen },
         { label: 'ACTIVIDADES EJECUTADAS', content: formData.actividades },
-        { label: 'RETOS Y SOLUCIONES', content: formData.retos },
+        { label: 'RETOS Y SOLUCIONES', content: formData.retos, highlight: zentrackOrange },
         { label: 'PENDIENTES', content: formData.pendientes },
-        { label: 'NOVEDADES Y CLIMA', content: formData.novedades },
-        { label: 'OBSERVACIONES EXTRA', content: formData.observaciones_extra }
+        { label: 'NOVEDADES Y CLIMA', content: formData.novedades }
     ];
 
     bitacoraSections.forEach(section => {
         if (!section.content) return;
 
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(9);
-        doc.setTextColor(100, 100, 100);
-        doc.text(section.label, margin, cursorY);
-        cursorY += 5;
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(40, 40, 40);
-        const splitText = doc.splitTextToSize(section.content, pageWidth - (margin * 2));
-        doc.text(splitText, margin, cursorY);
-        cursorY += (splitText.length * 5) + 10;
-
-        if (cursorY > 260) {
+        if (cursorY > 250) {
             doc.addPage();
             cursorY = 20;
         }
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.text(section.label, margin, cursorY);
+        cursorY += 5;
+
+        if (section.highlight) {
+            doc.setFillColor(...section.highlight);
+            doc.rect(margin - 2, cursorY - 3, 2, 8, 'F'); // Little indicator bar
+        }
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(30, 30, 30);
+        const splitText = doc.splitTextToSize(section.content, pageWidth - (margin * 2));
+        doc.text(splitText, margin, cursorY);
+        cursorY += (splitText.length * 5) + 12;
     });
+
+    if (formData.observaciones_extra) {
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(150, 150, 150);
+        doc.text('OBSERVACIONES ADICIONALES', margin, cursorY);
+        cursorY += 5;
+        doc.setFont('helvetica', 'normal');
+        const extraText = doc.splitTextToSize(formData.observaciones_extra, pageWidth - (margin * 2));
+        doc.text(extraText, margin, cursorY);
+        cursorY += (extraText.length * 5) + 10;
+    }
 
     // Photos
     if (formData.fotos && formData.fotos.length > 0) {
         doc.addPage();
-        cursorY = 20;
-        doc.setFont('helvetica', 'bold');
+        cursorY = 25;
+
         doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...quoiaGreen);
         doc.text('4. EVIDENCIA FOTOGRÁFICA', margin, cursorY);
-        cursorY += 15;
+        doc.line(margin, cursorY + 3, pageWidth - margin, cursorY + 3);
+        cursorY += 20;
 
         const imgWidth = 80;
         const imgHeight = 60;
@@ -124,7 +166,7 @@ const createPDFBlob = async (formData, user) => {
         for (const foto of formData.fotos) {
             if (cursorY + imgHeight > 270) {
                 doc.addPage();
-                cursorY = 20;
+                cursorY = 25;
             }
 
             const xPos = margin + (col * (imgWidth + 10));
@@ -136,6 +178,16 @@ const createPDFBlob = async (formData, user) => {
                 cursorY += imgHeight + 15;
             }
         }
+    }
+
+    // Footer with page numbers
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(180, 180, 180);
+        doc.text('Este documento es propiedad de Solenium - SUNSITE PROJECT', pageWidth / 2, 285, { align: 'center' });
+        doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin, 285, { align: 'right' });
     }
 
     // Filename logic: Categoria_MG_Fecha.pdf

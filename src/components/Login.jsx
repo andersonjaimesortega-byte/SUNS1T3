@@ -16,49 +16,51 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-zinc-900 text-zinc-100">
-            <div className="w-full max-w-md bg-zinc-800 p-8 rounded-2xl shadow-xl border border-zinc-700">
-                <div className="flex flex-col items-center mb-8">
-                    <div className="bg-emerald-500/10 p-4 rounded-full mb-4">
-                        <ShieldCheck className="w-12 h-12 text-emerald-500" />
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[var(--color-background)] text-[var(--color-text)] font-[family:var(--font-primary)]">
+            <div className="w-full max-w-sm bg-[var(--color-card)] p-10 rounded-[40px] shadow-2xl border border-[var(--color-border)] relative overflow-hidden group">
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-[var(--color-quoia-primary)]/10 rounded-full blur-2xl group-hover:bg-[var(--color-quoia-primary)]/20 transition-all duration-700"></div>
+
+                <div className="flex flex-col items-center mb-10 relative z-10">
+                    <div className="bg-[var(--color-quoia-primary)]/10 p-5 rounded-3xl mb-5 shadow-inner">
+                        <ShieldCheck className="w-14 h-14 text-[var(--color-quoia-primary)]" />
                     </div>
-                    <h1 className="text-2xl font-bold text-center">Bitácora Digital</h1>
-                    <p className="text-zinc-400 text-sm">Acceso para Personal de Campo</p>
+                    <h1 className="text-3xl font-black tracking-tighter text-center uppercase mb-1">SunSite</h1>
+                    <p className="text-[var(--color-text-muted)] text-[10px] font-bold uppercase tracking-[0.3em]">Acceso Personal Campo</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label htmlFor="userId" className="block text-sm font-medium mb-2 text-zinc-300">
-                            ID de Usuario
+                <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+                    <div className="space-y-2">
+                        <label htmlFor="userId" className="block text-xs font-black uppercase tracking-widest ml-1 text-[var(--color-text-muted)]">
+                            Identificación ID
                         </label>
                         <input
                             id="userId"
                             type="text"
                             value={userId}
                             onChange={(e) => setUserId(e.target.value)}
-                            placeholder="Ej: ING001"
-                            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
+                            placeholder="Ej: ING-002"
+                            className="w-full px-5 py-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl focus:ring-2 focus:ring-[var(--color-quoia-primary)]/50 focus:border-[var(--color-quoia-primary)] transition-all outline-none font-bold"
                             required
                         />
                     </div>
 
                     {error && (
-                        <p className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">
+                        <p className="text-[var(--color-error)] text-xs font-bold bg-[var(--color-error)]/10 p-4 rounded-2xl border border-[var(--color-error)]/20 animate-pulse">
                             {error}
                         </p>
                     )}
 
                     <button
                         type="submit"
-                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-emerald-900/20"
+                        className="w-full bg-[var(--color-quoia-primary)] hover:scale-[1.02] active:scale-[0.98] text-[var(--color-background)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-[var(--color-quoia-primary)]/20 text-sm uppercase tracking-widest"
                     >
-                        <LogIn className="w-5 h-5" />
-                        Entrar al Sistema
+                        <LogIn className="w-5 h-5 font-bold" />
+                        Validar Acceso
                     </button>
                 </form>
 
-                <p className="mt-8 text-center text-xs text-zinc-500">
-                    Uso exclusivo para personal autorizado de Minigranjas.
+                <p className="mt-10 text-center text-[10px] text-[var(--color-text-muted)] font-medium leading-relaxed uppercase tracking-wider opacity-60">
+                    Solenium Engineering Division<br />Sunsite Digital Project © 2024
                 </p>
             </div>
         </div>

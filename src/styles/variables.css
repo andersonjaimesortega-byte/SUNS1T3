@@ -1,0 +1,30 @@
+:root {
+    /* Fonts */
+    --font-primary: 'Poppins', sans-serif;
+
+    /* Corporate Colors */
+    --color-quoia-primary: #b8cf3e;
+    /* Primary Brand Color */
+    --color-zentrack-primary: #fd9c10;
+    /* Alert / Highlight Color */
+
+    /* Semantic Colors */
+    --color-background: #09090b;
+    /* zinc-950 */
+    --color-card: #18181b;
+    /* zinc-900 */
+    --color-border: #27272a;
+    /* zinc-800 */
+    --color-text: #f4f4f5;
+    /* zinc-100 */
+    --color-text-muted: #a1a1aa;
+    /* zinc-400 */
+
+    /* Action Colors */
+    --color-success: var(--color-quoia-primary);
+    --color-warning: var(--color-zentrack-primary);
+    --color-error: #ef4444;
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}

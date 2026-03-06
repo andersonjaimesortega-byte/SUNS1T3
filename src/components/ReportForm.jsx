@@ -209,15 +209,15 @@ const ReportForm = ({ onBack, onSave }) => {
 
             <form onSubmit={handleSubmit} className="p-4 space-y-6 max-w-2xl mx-auto">
                 {/* GPS Status Banner */}
-                <div className={`p-4 rounded-xl flex items-center gap-3 border ${gpsStatus === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' :
-                    gpsStatus === 'error' ? 'bg-red-500/10 border-red-500/30 text-red-500' :
-                        'bg-zinc-800 border-zinc-700 text-zinc-400'
+                <div className={`p-4 rounded-2xl flex items-center gap-3 border transition-all ${gpsStatus === 'success' ? 'bg-[var(--color-success)]/10 border-[var(--color-success)]/30 text-[var(--color-success)]' :
+                        gpsStatus === 'error' ? 'bg-[var(--color-error)]/10 border-[var(--color-error)]/30 text-[var(--color-error)]' :
+                            'bg-[var(--color-card)] border-[var(--color-border)] text-[var(--color-text-muted)]'
                     }`}>
-                    {gpsStatus === 'success' ? <MapPin className="w-5 h-5" /> :
+                    {gpsStatus === 'success' ? <MapPin className="w-5 h-5 shadow-sm" /> :
                         gpsStatus === 'error' ? <AlertCircle className="w-5 h-5" /> :
-                            <span className="w-5 h-5 border-2 border-zinc-500 border-t-transparent rounded-full animate-spin"></span>}
+                            <span className="w-5 h-5 border-2 border-[var(--color-text-muted)] border-t-transparent rounded-full animate-spin"></span>}
                     <div className="flex-1">
-                        <p className="text-sm font-bold">
+                        <p className="text-sm font-bold tracking-tight">
                             {gpsStatus === 'success' ? 'Ubicación Confirmada' :
                                 gpsStatus === 'error' ? 'GPS Obligatorio' : 'Obteniendo Ubicación...'}
                         </p>
@@ -226,25 +226,25 @@ const ReportForm = ({ onBack, onSave }) => {
 
                 {/* ID & Categoria */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-2 text-zinc-400">ID Minigranja</label>
+                    <div className="group">
+                        <label className="block text-xs font-bold mb-2 text-[var(--color-text-muted)] uppercase tracking-wider ml-1">ID Minigranja</label>
                         <input
                             type="text"
                             name="minigranjaId"
                             value={formData.minigranjaId}
                             onChange={handleInputChange}
                             placeholder="Ej: MG-001"
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500"
+                            className="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-[var(--color-quoia-primary)]/50 focus:border-[var(--color-quoia-primary)] transition-all"
                             required
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-2 text-zinc-400">Categoría</label>
+                    <div className="group">
+                        <label className="block text-xs font-bold mb-2 text-[var(--color-text-muted)] uppercase tracking-wider ml-1">Categoría</label>
                         <select
                             name="categoria"
                             value={formData.categoria}
                             onChange={handleInputChange}
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500"
+                            className="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-[var(--color-quoia-primary)]/50 focus:border-[var(--color-quoia-primary)] transition-all appearance-none cursor-pointer"
                             required
                         >
                             <option value="">Seleccionar...</option>
@@ -254,45 +254,47 @@ const ReportForm = ({ onBack, onSave }) => {
                 </div>
 
                 {/* Personal Module */}
-                <div className="bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800 space-y-4">
-                    <h2 className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                        <Users className="w-4 h-4" /> Recursos: Personal y Equipos
+                <div className="bg-[var(--color-card)]/50 p-6 rounded-3xl border border-[var(--color-border)] space-y-5">
+                    <h2 className="text-xs font-black text-[var(--color-text-muted)] flex items-center gap-2 uppercase tracking-widest">
+                        <Users className="w-4 h-4 text-[var(--color-quoia-primary)]" /> Recursos: Personal y Equipos
                     </h2>
                     <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-xs text-zinc-500 mb-1 block">Personal Solenium</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-tight ml-1">Personal Solenium</label>
                             <input
                                 type="number"
                                 name="personal_solenium"
                                 value={formData.personal_solenium}
                                 onChange={handleInputChange}
-                                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[var(--color-quoia-primary)]/40 transition-all font-mono"
                             />
                         </div>
-                        <div>
-                            <label className="text-xs text-zinc-500 mb-1 block">Personal Contratista</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-tight ml-1">Personal Contratista</label>
                             <input
                                 type="number"
                                 name="personal_contratista"
                                 value={formData.personal_contratista}
                                 onChange={handleInputChange}
-                                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[var(--color-quoia-primary)]/40 transition-all font-mono"
                             />
                         </div>
                     </div>
                 </div>
 
                 {/* Hardware/Materials Module */}
-                <div className="bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800 space-y-3">
+                <div className="bg-[var(--color-card)]/50 p-6 rounded-3xl border border-[var(--color-border)] space-y-4">
                     <div className="flex items-center gap-3">
-                        <input
-                            type="checkbox"
-                            name="materiales_llegaron"
-                            checked={formData.materiales_llegaron}
-                            onChange={(e) => setFormData(p => ({ ...p, materiales_llegaron: e.target.checked }))}
-                            className="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-emerald-500 focus:ring-emerald-500"
-                        />
-                        <label className="text-sm font-bold text-zinc-300">¿Llegó material hoy?</label>
+                        <div className="relative flex items-center">
+                            <input
+                                type="checkbox"
+                                name="materiales_llegaron"
+                                checked={formData.materiales_llegaron}
+                                onChange={(e) => setFormData(p => ({ ...p, materiales_llegaron: e.target.checked }))}
+                                className="w-6 h-6 rounded-lg border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-quoia-primary)] focus:ring-[var(--color-quoia-primary)] transition-all cursor-pointer"
+                            />
+                        </div>
+                        <label className="text-sm font-bold text-[var(--color-text)]">¿Llegó material hoy?</label>
                     </div>
                     {formData.materiales_llegaron && (
                         <textarea
@@ -300,63 +302,69 @@ const ReportForm = ({ onBack, onSave }) => {
                             value={formData.materiales_detalle}
                             onChange={handleInputChange}
                             placeholder="Detalla los insumos que llegaron..."
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm h-20"
+                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-[var(--color-quoia-primary)]/40 transition-all text-sm h-24 italic"
                         ></textarea>
                     )}
                 </div>
 
                 {/* AI Voice Section */}
-                <div className="p-6 bg-emerald-500/5 border-2 border-dashed border-emerald-500/20 rounded-3xl text-center space-y-4">
+                <div className="p-8 bg-[var(--color-quoia-primary)]/5 border-2 border-dashed border-[var(--color-quoia-primary)]/20 rounded-[40px] text-center space-y-5 transition-all">
                     <div className="flex flex-col items-center">
                         <button
                             type="button"
                             disabled={!formData.categoria}
                             onClick={startSmartVoiceCapture}
-                            className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${activeVoiceField === 'smart'
-                                ? 'bg-red-500 text-white animate-pulse'
-                                : formData.categoria ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 active:scale-90' : 'bg-zinc-800 text-zinc-600 grayscale'
+                            className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-2xl ${activeVoiceField === 'smart'
+                                    ? 'bg-[var(--color-error)] text-white animate-pulse'
+                                    : formData.categoria
+                                        ? 'bg-[var(--color-quoia-primary)] text-[var(--color-background)] hover:scale-105 active:scale-95 shadow-[var(--color-quoia-primary)]/20'
+                                        : 'bg-[var(--color-border)] text-[var(--color-text-muted)] grayscale cursor-not-allowed'
                                 }`}
                         >
-                            <Mic className="w-8 h-8" />
+                            <Mic className="w-10 h-10" />
                         </button>
-                        <p className={`mt-3 text-sm font-bold ${formData.categoria ? 'text-emerald-500' : 'text-zinc-500'}`}>
-                            {activeVoiceField === 'smart' ? 'Escuchando bitácora...' : formData.categoria ? 'Púlsa para dictar bitácora' : 'Selecciona categoría para dictar'}
+                        <p className={`mt-4 text-sm font-bold tracking-tight ${formData.categoria ? 'text-[var(--color-quoia-primary)]' : 'text-[var(--color-text-muted)]'}`}>
+                            {activeVoiceField === 'smart' ? 'Escuchando bitácora...' : formData.categoria ? 'Pulsa para dictar reporte' : 'Selecciona categoría para habilitar voz'}
                         </p>
-                        <p className="text-[10px] text-zinc-400 mt-1 italic">
+                        <p className="text-[10px] text-[var(--color-text-muted)] mt-2 font-medium bg-[var(--color-background)]/50 px-3 py-1 rounded-full border border-[var(--color-border)]">
                             Tip: Di "% avance, Actividades, Retos, Pendientes y Novedades"
                         </p>
                     </div>
                 </div>
 
                 {/* Structured Fields */}
-                <div className="space-y-4">
-                    <div className="grid grid-cols-[100px_1fr] gap-4">
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3">
-                            <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1 block">Avance</label>
-                            <input
-                                type="text"
-                                name="avance_porcentaje"
-                                value={formData.avance_porcentaje}
-                                onChange={handleInputChange}
-                                className="w-full bg-transparent text-lg font-bold outline-none text-emerald-500"
-                                placeholder="0%"
-                            />
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 gap-5">
+                        <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-3xl p-5 shadow-sm">
+                            <label className="text-[10px] text-[var(--color-text-muted)] uppercase font-black mb-2 block tracking-widest">Estado de Avance</label>
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="text"
+                                    name="avance_porcentaje"
+                                    value={formData.avance_porcentaje}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-transparent text-3xl font-black outline-none text-[var(--color-quoia-primary)] placeholder:text-[var(--color-border)]"
+                                    placeholder="0%"
+                                />
+                            </div>
                         </div>
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {[
-                                { id: 'actividades', label: 'Actividades', color: 'text-blue-400' },
-                                { id: 'retos', label: 'Retos/Soluciones', color: 'text-orange-400' },
-                                { id: 'pendientes', label: 'Pendientes', color: 'text-purple-400' },
-                                { id: 'novedades', label: 'Novedades/Clima', color: 'text-emerald-400' }
+                                { id: 'actividades', label: 'Actividades Ejecutadas', color: 'text-sky-400', icon: CheckCircle },
+                                { id: 'retos', label: 'Retos y Soluciones', color: 'text-[var(--color-warning)]', icon: AlertCircle },
+                                { id: 'pendientes', label: 'Pendientes Próximos', color: 'text-violet-400', icon: History },
+                                { id: 'novedades', label: 'Novedades / Clima', color: 'text-[var(--color-quoia-primary)]', icon: FileEdit }
                             ].map(item => (
-                                <div key={item.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3">
-                                    <label className={`text-[10px] uppercase font-bold mb-1 block ${item.color}`}>{item.label}</label>
+                                <div key={item.id} className={`bg-[var(--color-card)] border transition-all rounded-3xl p-5 ${item.id === 'retos' ? 'border-[var(--color-warning)]/20' : 'border-[var(--color-border)]'}`}>
+                                    <label className={`text-[10px] uppercase font-black mb-3 flex items-center gap-2 tracking-widest ${item.color}`}>
+                                        <item.icon className="w-3 h-3" /> {item.label}
+                                    </label>
                                     <textarea
                                         name={item.id}
                                         value={formData[item.id]}
                                         onChange={handleInputChange}
-                                        className="w-full bg-transparent outline-none text-sm min-h-[60px]"
-                                        placeholder={`Contenido de ${item.label.toLowerCase()}...`}
+                                        className="w-full bg-transparent outline-none text-sm font-medium min-h-[80px] leading-relaxed"
+                                        placeholder={`Escribe aquí los ${item.label.toLowerCase()}...`}
                                     />
                                 </div>
                             ))}
@@ -365,44 +373,49 @@ const ReportForm = ({ onBack, onSave }) => {
                 </div>
 
                 {/* Photo Upload */}
-                <div className="pt-4 border-t border-zinc-900">
-                    <div className="flex justify-between items-center mb-4">
-                        <label className="text-sm font-bold text-zinc-400">Evidencia Fotográfica</label>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${formData.fotos.length > 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
-                            {formData.fotos.length === 0 ? 'MÍNIMO 1 REQUERIDA' : `${formData.fotos.length} FOTOS`}
+                <div className="pt-8 border-t border-[var(--color-border)]">
+                    <div className="flex justify-between items-end mb-6">
+                        <div>
+                            <label className="text-sm font-black text-[var(--color-text)] uppercase tracking-widest block mb-1">Evidencia Fotográfica</label>
+                            <p className="text-[10px] text-[var(--color-text-muted)] font-medium italic">Sube al menos una captura del progreso actual</p>
+                        </div>
+                        <span className={`text-[10px] font-black px-3 py-1.5 rounded-full border transition-all ${formData.fotos.length > 0 ? 'bg-[var(--color-quoia-primary)]/10 border-[var(--color-quoia-primary)]/30 text-[var(--color-quoia-primary)]' : 'bg-[var(--color-error)]/10 border-[var(--color-error)]/30 text-[var(--color-error)]'}`}>
+                            {formData.fotos.length === 0 ? 'MÍNIMO 1 FOTO' : `${formData.fotos.length} CAPTURAS`}
                         </span>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         {formData.fotos.map(foto => (
-                            <div key={foto.id} className="relative aspect-video rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900">
-                                <img src={foto.base64} alt="Preview" className="w-full h-full object-cover" />
+                            <div key={foto.id} className="relative group aspect-video rounded-3xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-background)]">
+                                <img src={foto.base64} alt="Preview" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 <button
                                     type="button"
                                     onClick={() => removeFoto(foto.id)}
-                                    className="absolute top-2 right-2 p-1.5 bg-red-500/80 backdrop-blur rounded-full text-white"
+                                    className="absolute top-3 right-3 p-2 bg-[var(--color-error)]/90 backdrop-blur rounded-full text-white shadow-xl opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0"
                                 >
-                                    <Trash2 className="w-3 h-3" />
+                                    <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         ))}
-                        <label className="aspect-video rounded-2xl border-2 border-dashed border-zinc-800 flex flex-col items-center justify-center gap-2 text-zinc-600 hover:border-emerald-500 hover:text-emerald-500 cursor-pointer transition-all active:scale-95 bg-zinc-900/30">
-                            <Camera className="w-6 h-6" />
-                            <span className="text-[10px] font-bold uppercase">Añadir Captura</span>
+                        <label className="aspect-video rounded-3xl border-2 border-dashed border-[var(--color-border)] flex flex-col items-center justify-center gap-3 text-[var(--color-text-muted)] hover:border-[var(--color-quoia-primary)] hover:text-[var(--color-quoia-primary)] hover:bg-[var(--color-quoia-primary)]/5 cursor-pointer transition-all active:scale-95 group">
+                            <div className="w-12 h-12 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] flex items-center justify-center group-hover:border-[var(--color-quoia-primary)]/50 transition-all">
+                                <Camera className="w-6 h-6" />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Añadir Captura</span>
                             <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
                         </label>
                     </div>
                 </div>
 
                 {/* Submit Button */}
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-900 z-10 flex justify-center">
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-[var(--color-background)]/80 backdrop-blur-2xl border-t border-[var(--color-border)] z-30 flex justify-center pb-8 md:pb-4">
                     <button
                         type="submit"
                         disabled={isSaving || !formData.gps_location || formData.fotos.length === 0 || !formData.categoria}
-                        className="w-full max-w-xl bg-emerald-600 disabled:opacity-30 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-2xl shadow-emerald-500/20"
+                        className="w-full max-w-xl bg-[var(--color-quoia-primary)] disabled:bg-[var(--color-border)] disabled:opacity-40 text-[var(--color-background)] font-black py-4 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.97] transition-all shadow-2xl shadow-[var(--color-quoia-primary)]/20 text-sm uppercase tracking-widest"
                     >
                         {isSaving ? (
-                            <span className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                        ) : <><Save className="w-5 h-5" /> GENERAR REPORTE PDF</>}
+                            <span className="w-6 h-6 border-2 border-[var(--color-background)]/20 border-t-[var(--color-background)] rounded-full animate-spin"></span>
+                        ) : <><Save className="w-5 h-5 font-bold" /> GENERAR REPORTE OFICIAL</>}
                     </button>
                 </div>
             </form>
