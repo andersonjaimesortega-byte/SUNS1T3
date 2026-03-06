@@ -8,64 +8,99 @@ export const generateReportPDF = async (formData, user) => {
 
     // Header
     doc.setFillColor(16, 185, 129); // Emerald-500
-    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.rect(0, 0, pageWidth, 45, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
+    doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text('REPORTE DIARIO DE CAMPO', margin, 25);
+    doc.text('BITÁCORA DIARIA DE OBRA', margin, 20);
 
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text(`ID Minigranja: ${formData.minigranjaId}`, margin, 35);
-    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, pageWidth - margin - 40, 35);
+    const categoryName = formData.categoria || 'Sin Categoría';
+    doc.text(`Categoría: ${categoryName.toUpperCase()}`, margin, 32);
+
+    doc.setFontSize(9);
+    doc.text(`ID Minigranja: ${formData.minigranjaId}`, margin, 40);
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, pageWidth - margin - 40, 40);
 
     cursorY = 55;
     doc.setTextColor(40, 40, 40);
 
-    // User Info
+    // Section 1: Identification & Location
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Información del Personal y Ubicación', margin, cursorY);
-    cursorY += 7;
-    doc.setFont('helvetica', 'normal');
+    doc.text('1. IDENTIFICACIÓN Y UBICACIÓN', margin, cursorY);
+    cursorY += 8;
+
     doc.setFontSize(10);
-    doc.text(`Nombre: ${user.nombre}`, margin, cursorY);
-    doc.text(`ID Usuario: ${user.id}`, pageWidth / 2, cursorY);
-    cursorY += 7;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Supervisor: ${user.nombre} (${user.id})`, margin, cursorY);
+    cursorY += 6;
 
     if (formData.gps_location) {
-        doc.text(`Coordenadas GPS: ${formData.gps_location.lat.toFixed(6)}, ${formData.gps_location.lng.toFixed(6)}`, margin, cursorY);
-        doc.text(`Sincronización GPS: ${new Date(formData.gps_location.timestamp).toLocaleTimeString()}`, pageWidth / 2, cursorY);
-        cursorY += 7;
+        doc.text(`GPS: [Lat: ${formData.gps_location.lat.toFixed(6)}, Lng: ${formData.gps_location.lng.toFixed(6)}]`, margin, cursorY);
+        doc.text(`Hora GPS: ${new Date(formData.gps_location.timestamp).toLocaleTimeString()}`, pageWidth / 2, cursorY);
+        cursorY += 10;
     }
 
-    doc.text(`Personal en Obra: ${formData.cantidad_personal || 'No especificado'}`, margin, cursorY);
-    cursorY += 15;
+    // Section 2: Resources
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('2. RECURSOS (PERSONAL Y MATERIALES)', margin, cursorY);
+    cursorY += 8;
 
-    // Form Data
-    const sections = [
-        { title: 'Materiales Recibidos', content: formData.materiales_recibidos },
-        { title: 'Avances del Día', content: formData.avances },
-        { title: 'Actividades Realizadas', content: formData.actividades },
-        { title: 'Retos / Problemas', content: formData.retos },
-        { title: 'Pendientes', content: formData.pendientes },
-        { title: 'Observaciones Extra', content: formData.observaciones_extra }
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Personal Solenium: ${formData.personal_solenium || '0'}`, margin, cursorY);
+    doc.text(`Personal Contratista: ${formData.personal_contratista || '0'}`, pageWidth / 2, cursorY);
+    cursorY += 8;
+
+    const matStatus = formData.materiales_llegaron ? 'SÍ LLEGÓ' : 'NO LLEGÓ';
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Ingreso de Material: ${matStatus}`, margin, cursorY);
+    cursorY += 6;
+
+    if (formData.materiales_llegaron && formData.materiales_detalle) {
+        doc.setFont('helvetica', 'normal');
+        const matDetail = doc.splitTextToSize(`Detalle: ${formData.materiales_detalle}`, pageWidth - (margin * 2));
+        doc.text(matDetail, margin, cursorY);
+        cursorY += (matDetail.length * 5) + 6;
+    }
+    cursorY += 6;
+
+    // Section 3: Work Bitácora (Smart Block)
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(240, 240, 240);
+    doc.rect(margin, cursorY - 5, pageWidth - (margin * 2), 8, 'F');
+    doc.text('3. DESARROLLO DE ACTIVIDADES', margin + 2, cursorY + 1);
+    cursorY += 12;
+
+    const bitacoraSections = [
+        { label: 'AVANCE DEL DÍA', content: formData.avance_porcentaje, color: [16, 185, 129] },
+        { label: 'ACTIVIDADES EJECUTADAS', content: formData.actividades },
+        { label: 'RETOS Y SOLUCIONES', content: formData.retos },
+        { label: 'PENDIENTES', content: formData.pendientes },
+        { label: 'NOVEDADES Y CLIMA', content: formData.novedades },
+        { label: 'OBSERVACIONES EXTRA', content: formData.observaciones_extra }
     ];
 
-    sections.forEach(section => {
-        if (!section.content) return; // Skip empty optional sections
+    bitacoraSections.forEach(section => {
+        if (!section.content) return;
 
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(12);
-        doc.text(section.title, margin, cursorY);
-        cursorY += 7;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text(section.label, margin, cursorY);
+        cursorY += 5;
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
+        doc.setTextColor(40, 40, 40);
         const splitText = doc.splitTextToSize(section.content, pageWidth - (margin * 2));
         doc.text(splitText, margin, cursorY);
-        cursorY += (splitText.length * 5) + 12;
+        cursorY += (splitText.length * 5) + 10;
 
         if (cursorY > 260) {
             doc.addPage();
@@ -79,7 +114,7 @@ export const generateReportPDF = async (formData, user) => {
         cursorY = 20;
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
-        doc.text('Evidencia Fotográfica', margin, cursorY);
+        doc.text('4. EVIDENCIA FOTOGRÁFICA', margin, cursorY);
         cursorY += 15;
 
         const imgWidth = 80;
@@ -103,9 +138,10 @@ export const generateReportPDF = async (formData, user) => {
         }
     }
 
-    // Filename logic: IDMinigranja_Fecha_IDUsuario.pdf
+    // Filename logic: Categoria_MG_Fecha.pdf
     const dateStr = new Date().toISOString().split('T')[0];
-    const filename = `${formData.minigranjaId}_${dateStr}_${user.id}.pdf`;
+    const catShort = (formData.categoria || 'Bitacora').substring(0, 10).replace(/\s+/g, '');
+    const filename = `${catShort}_${formData.minigranjaId}_${dateStr}.pdf`;
 
     doc.save(filename);
     return filename;
