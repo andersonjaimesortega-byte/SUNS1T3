@@ -4,8 +4,8 @@ import {
     CheckCircle, Calendar, Package, Download
 } from 'lucide-react';
 import { getAllReports, deleteReport } from '../utils/StorageManager';
-import { generateConsolidatedReport } from '../utils/ConsolidationEngine';
-import { generateReportPDF } from '../utils/PdfGenerator';
+import { generateConsolidatedReport, prepareConsolidatedData } from '../utils/ConsolidationEngine';
+import { generateReportPDF, generateReportFile } from '../utils/PdfGenerator';
 
 const HistoryView = ({ onBack, user }) => {
     const [reports, setReports] = useState([]);
@@ -48,6 +48,30 @@ const HistoryView = ({ onBack, user }) => {
         } catch (error) {
             console.error('Detailed Consolidation Error:', error);
             alert(`No se pudo consolidar: ${error.message}. Por favor revisa que los reportes no tengan datos corruptos.`);
+        }
+    };
+
+    const handleShareConsolidated = async () => {
+        try {
+            const selectedData = reports.filter(r => selectedIds.includes(r.id));
+            if (selectedData.length === 0) return;
+
+            const combinedData = prepareConsolidatedData(selectedData);
+            const file = await generateReportFile(combinedData, user);
+
+            if (navigator.share) {
+                await navigator.share({
+                    files: [file],
+                    title: `Resumen Consolidado SunSite`,
+                    text: `Comparto informe consolidado de ${selectedData.length} registros.`
+                });
+            } else {
+                alert('La función de compartir no está disponible en este navegador. El reporte se descargará.');
+                generateConsolidatedReport(selectedData, user);
+            }
+        } catch (error) {
+            console.error('Error sharing consolidated:', error);
+            alert('Error al intentar compartir el consolidado.');
         }
     };
 
@@ -167,13 +191,24 @@ const HistoryView = ({ onBack, user }) => {
 
             {selectedIds.length >= 1 && (
                 <div className="fixed bottom-0 left-0 right-0 p-5 bg-[var(--color-background)]/80 backdrop-blur-2xl border-t border-[var(--color-border)] z-30 animate-in slide-in-from-bottom-full duration-300">
-                    <button
-                        onClick={handleGenerateSummary}
-                        className="w-full max-w-xl mx-auto bg-[var(--color-zentrack-primary)] text-[var(--color-background)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-[var(--color-zentrack-primary)]/20 text-xs uppercase tracking-[0.2em]"
-                    >
-                        <FileText className="w-5 h-5" />
-                        {selectedIds.length === 1 ? 'Generar Copia PDF' : `Consolidar ${selectedIds.length} Reportes`}
-                    </button>
+                    <div className="max-w-xl mx-auto flex gap-3">
+                        <button
+                            onClick={handleGenerateSummary}
+                            className="flex-1 bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-text)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:border-[var(--color-quoia-primary)]/30 transition-all text-[10px] uppercase tracking-widest"
+                        >
+                            <Download className="w-4 h-4 text-[var(--color-quoia-primary)]" />
+                            PDF
+                        </button>
+                        <button
+                            onClick={handleShareConsolidated}
+                            className="flex-[2] bg-[var(--color-quoia-primary)] text-[var(--color-background)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-[var(--color-quoia-primary)]/20 text-xs uppercase tracking-[0.2em] active:scale-95 transition-all text-center"
+                        >
+                            <Share2 className="w-5 h-5 flex-shrink-0" />
+                            <span className="truncate">
+                                {selectedIds.length === 1 ? 'Compartir Copia' : `Compartir ${selectedIds.length} Reportes`}
+                            </span>
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

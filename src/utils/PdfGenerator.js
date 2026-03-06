@@ -69,48 +69,50 @@ const createPDFBlob = async (formData, user) => {
         cursorY += 4;
     }
 
-    // --- Section 2: Resources ---
-    cursorY += 5;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.setTextColor(...quoiaGreen);
-    doc.text('2. RECURSOS Y GESTIÓN', margin, cursorY);
-    doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
-    cursorY += 12;
+    // --- Section 2: Resources (Skip if consolidated) ---
+    if (!formData.isConsolidated) {
+        cursorY += 5;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(...quoiaGreen);
+        doc.text('2. RECURSOS Y GESTIÓN', margin, cursorY);
+        doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
+        cursorY += 12;
 
-    // Boxed Resources
-    doc.setFillColor(248, 250, 252); // Very light slate
-    doc.setDrawColor(226, 232, 240);
-    doc.roundedRect(margin, cursorY - 5, pageWidth - (margin * 2), 20, 3, 3, 'FD');
+        // Boxed Resources
+        doc.setFillColor(248, 250, 252); // Very light slate
+        doc.setDrawColor(226, 232, 240);
+        doc.roundedRect(margin, cursorY - 5, pageWidth - (margin * 2), 20, 3, 3, 'FD');
 
-    doc.setTextColor(...darkGray);
-    doc.setFontSize(9);
-    doc.text('PERSONAL SOLENIUM', margin + 10, cursorY);
-    doc.text('PERSONAL CONTRATISTA', pageWidth / 2 + 10, cursorY);
-
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text(formData.personal_solenium || '0', margin + 10, cursorY + 8);
-    doc.text(formData.personal_contratista || '0', pageWidth / 2 + 10, cursorY + 8);
-    cursorY += 22;
-
-    // Materials Status
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    const matLabel = formData.materiales_llegaron ? '✓ INGRESO DE MATERIALES' : '○ SIN NOVEDAD EN MATERIALES';
-    doc.setTextColor(formData.materiales_llegaron ? quoiaGreen[0] : 100, formData.materiales_llegaron ? quoiaGreen[1] : 100, formData.materiales_llegaron ? quoiaGreen[2] : 100);
-    doc.text(matLabel, margin, cursorY);
-    cursorY += 6;
-
-    if (formData.materiales_llegaron && formData.materiales_detalle) {
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(9);
         doc.setTextColor(...darkGray);
-        const matDetail = doc.splitTextToSize(formData.materiales_detalle, pageWidth - (margin * 2) - 10);
-        doc.text(matDetail, margin + 5, cursorY);
-        cursorY += (matDetail.length * 5) + 6;
+        doc.setFontSize(9);
+        doc.text('PERSONAL SOLENIUM', margin + 10, cursorY);
+        doc.text('PERSONAL CONTRATISTA', pageWidth / 2 + 10, cursorY);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(formData.personal_solenium || '0', margin + 10, cursorY + 8);
+        doc.text(formData.personal_contratista || '0', pageWidth / 2 + 10, cursorY + 8);
+        cursorY += 22;
+
+        // Materials Status
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        const matLabel = formData.materiales_llegaron ? '✓ INGRESO DE MATERIALES' : '○ SIN NOVEDAD EN MATERIALES';
+        doc.setTextColor(formData.materiales_llegaron ? quoiaGreen[0] : 100, formData.materiales_llegaron ? quoiaGreen[1] : 100, formData.materiales_llegaron ? quoiaGreen[2] : 100);
+        doc.text(matLabel, margin, cursorY);
+        cursorY += 6;
+
+        if (formData.materiales_llegaron && formData.materiales_detalle) {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(...darkGray);
+            const matDetail = doc.splitTextToSize(formData.materiales_detalle, pageWidth - (margin * 2) - 10);
+            doc.text(matDetail, margin + 5, cursorY);
+            cursorY += (matDetail.length * 5) + 6;
+        }
+        cursorY += 5;
     }
-    cursorY += 5;
 
     // --- Section 3: Development Technical ---
     if (cursorY > 200) { doc.addPage(); cursorY = 25; }
@@ -156,7 +158,9 @@ const createPDFBlob = async (formData, user) => {
     });
 
     // --- Section 4: Photo Evidence ---
-    if (formData.fotos && formData.fotos.length > 0) {
+    const hasPhotos = (formData.fotos && formData.fotos.length > 0) || (formData.fotosGrouped && formData.fotosGrouped.length > 0);
+
+    if (hasPhotos) {
         doc.addPage();
         cursorY = 25;
 
@@ -167,29 +171,52 @@ const createPDFBlob = async (formData, user) => {
         doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
         cursorY += 15;
 
-        const imgWidth = 80;
-        const imgHeight = 60;
-        let col = 0;
+        const photoGroups = formData.fotosGrouped || [
+            { minigranja: formData.minigranjaId || 'General', fotos: formData.fotos }
+        ];
 
-        for (const foto of formData.fotos) {
-            if (cursorY + imgHeight > 270) {
-                doc.addPage();
-                cursorY = 25;
+        for (const group of photoGroups) {
+            if (group.fotos.length === 0) continue;
+
+            // Group Subheader (If consolidated)
+            if (formData.isConsolidated) {
+                if (cursorY > 260) { doc.addPage(); cursorY = 25; }
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9);
+                doc.setTextColor(...darkGray);
+                doc.text(`SITIO: ${group.minigranja.toUpperCase()}`, margin, cursorY);
+                doc.setDrawColor(...lightGray);
+                doc.setLineWidth(0.1);
+                doc.line(margin, cursorY + 1, margin + 50, cursorY + 1);
+                cursorY += 8;
             }
 
-            const xPos = margin + (col * (imgWidth + 10));
-            doc.addImage(foto.base64, 'JPEG', xPos, cursorY, imgWidth, imgHeight);
+            const imgWidth = 80;
+            const imgHeight = 60;
+            let col = 0;
 
-            // Photo label
-            doc.setFontSize(7);
-            doc.setTextColor(...lightGray);
-            doc.text(`Captura ${formData.fotos.indexOf(foto) + 1}`, xPos, cursorY + imgHeight + 4);
+            for (const foto of group.fotos) {
+                if (cursorY + imgHeight > 270) {
+                    doc.addPage();
+                    cursorY = 25;
+                }
 
-            col++;
-            if (col > 1) {
-                col = 0;
-                cursorY += imgHeight + 15;
+                const xPos = margin + (col * (imgWidth + 10));
+                doc.addImage(foto.base64, 'JPEG', xPos, cursorY, imgWidth, imgHeight);
+
+                // Photo label
+                doc.setFontSize(7);
+                doc.setTextColor(...lightGray);
+                doc.text(`Captura ${group.fotos.indexOf(foto) + 1} - ${group.minigranja}`, xPos, cursorY + imgHeight + 4);
+
+                col++;
+                if (col > 1) {
+                    col = 0;
+                    cursorY += imgHeight + 15;
+                }
             }
+            if (col !== 0) cursorY += imgHeight + 15;
+            cursorY += 5; // Extra spacing between groups
         }
     }
 
