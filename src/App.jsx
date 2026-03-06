@@ -41,6 +41,25 @@ const Dashboard = () => {
     setViewState('success');
   };
 
+  const handleShareReport = async (reportData) => {
+    try {
+      const file = await generateReportFile(reportData, user);
+      if (navigator.share) {
+        await navigator.share({
+          files: [file],
+          title: `Reporte SunSite - ${reportData.minigranjaId}`,
+          text: `Comparto informe de bitácora diaria: ${reportData.minigranjaId}`
+        });
+      } else {
+        alert('La función de compartir no está disponible en este navegador. El reporte se descargará.');
+        generateReportPDF(reportData, user);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      alert('Error al intentar compartir el reporte.');
+    }
+  };
+
   // Helper to render current content
   const renderContent = () => {
     switch (viewState) {
@@ -69,11 +88,20 @@ const Dashboard = () => {
                 <Download className="w-5 h-5" />
                 Descargar PDF Oficial
               </button>
+
+              <button
+                onClick={() => handleShareReport(lastReport.data)}
+                className="w-full bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-quoia-primary)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 hover:bg-[var(--color-quoia-primary)]/5 transition-all text-xs uppercase tracking-widest"
+              >
+                <Share2 className="w-5 h-5" />
+                Compartir Informe
+              </button>
+
               <button
                 onClick={() => setViewState('dashboard')}
-                className="w-full bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-text-muted)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 hover:text-[var(--color-text)] transition-all text-xs uppercase tracking-widest"
+                className="w-full text-[var(--color-text-muted)] font-bold py-4 text-xs uppercase tracking-[0.2em] hover:text-[var(--color-text)] transition-all"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 inline mr-2" />
                 Volver al Inicio
               </button>
             </div>

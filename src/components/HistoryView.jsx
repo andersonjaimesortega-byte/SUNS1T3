@@ -38,12 +38,36 @@ const HistoryView = ({ onBack, user }) => {
     };
 
     const handleGenerateSummary = async () => {
-        const selectedData = reports.filter(r => selectedIds.includes(r.id));
-        await generateConsolidatedReport(selectedData, user);
+        try {
+            const selectedData = reports.filter(r => selectedIds.includes(r.id));
+            await generateConsolidatedReport(selectedData, user);
+        } catch (error) {
+            alert('Error al consolidar reportes. Revisa que los datos sean válidos.');
+        }
     };
 
     const handleSingleDownload = (report) => {
         generateReportPDF(report.data, user);
+    };
+
+    const handleShare = async (report, e) => {
+        e.stopPropagation();
+        try {
+            const file = await generateReportFile(report.data, user);
+            if (navigator.share) {
+                await navigator.share({
+                    files: [file],
+                    title: `Reporte SunSite - ${report.minigranja}`,
+                    text: `Informe de bitácora: ${report.minigranja} (${report.date})`
+                });
+            } else {
+                alert('Compartir no disponible. Descargando...');
+                handleSingleDownload(report);
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+            alert('Error al compartir.');
+        }
     };
 
     if (loading) return <div className="p-10 text-center animate-pulse">Cargando Historial...</div>;
@@ -82,14 +106,14 @@ const HistoryView = ({ onBack, user }) => {
                             key={report.id}
                             onClick={() => toggleSelection(report.id)}
                             className={`relative group p-4 border rounded-3xl transition-all duration-300 cursor-pointer ${selectedIds.includes(report.id)
-                                    ? 'bg-[var(--color-quoia-primary)]/10 border-[var(--color-quoia-primary)]/40 shadow-lg shadow-[var(--color-quoia-primary)]/5 scale-[1.02]'
-                                    : 'bg-[var(--color-card)] border-[var(--color-border)] hover:border-[var(--color-quoia-primary)]/30'
+                                ? 'bg-[var(--color-quoia-primary)]/10 border-[var(--color-quoia-primary)]/40 shadow-lg shadow-[var(--color-quoia-primary)]/5 scale-[1.02]'
+                                : 'bg-[var(--color-card)] border-[var(--color-border)] hover:border-[var(--color-quoia-primary)]/30'
                                 }`}
                         >
                             <div className="flex items-start gap-4">
                                 <div className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${selectedIds.includes(report.id)
-                                        ? 'bg-[var(--color-quoia-primary)] border-[var(--color-quoia-primary)]'
-                                        : 'border-[var(--color-border)]'
+                                    ? 'bg-[var(--color-quoia-primary)] border-[var(--color-quoia-primary)]'
+                                    : 'border-[var(--color-border)]'
                                     }`}>
                                     {selectedIds.includes(report.id) && <CheckCircle className="text-[var(--color-background)] w-4 h-4" />}
                                 </div>
@@ -112,8 +136,16 @@ const HistoryView = ({ onBack, user }) => {
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleSingleDownload(report); }}
                                         className="p-2.5 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl hover:text-[var(--color-quoia-primary)] transition-all"
+                                        title="Descargar"
                                     >
                                         <Download className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => handleShare(report, e)}
+                                        className="p-2.5 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl hover:text-[var(--color-quoia-primary)] transition-all"
+                                        title="Compartir"
+                                    >
+                                        <Share2 className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={(e) => handleDelete(report.id, e)}
