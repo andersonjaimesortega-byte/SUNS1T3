@@ -4,13 +4,20 @@ export const generateConsolidatedReport = async (selectedReports, user) => {
     if (!selectedReports || selectedReports.length === 0) return null;
 
     try {
-        // 1. Calculate average progress with strict type checking
-        const totalAvance = selectedReports.reduce((acc, r) => {
+        // 1. Group and Sum progress by category
+        const categoryTotals = {};
+        selectedReports.forEach(r => {
+            const cat = (r.data?.categoria || 'Sin Categoría').toUpperCase();
             const val = String(r.data?.avance_porcentaje || '0');
             const num = parseInt(val.replace(/[^0-9]/g, '')) || 0;
-            return acc + num;
-        }, 0);
-        const avgAvance = `${Math.round(totalAvance / selectedReports.length)}%`;
+
+            if (!categoryTotals[cat]) categoryTotals[cat] = 0;
+            categoryTotals[cat] += num;
+        });
+
+        const avgAvance = Object.entries(categoryTotals)
+            .map(([cat, total]) => `${cat}: ${total}%`)
+            .join(' | ');
 
         // 2. Concatenate textual data with sources
         const consolidateText = (field) => {
