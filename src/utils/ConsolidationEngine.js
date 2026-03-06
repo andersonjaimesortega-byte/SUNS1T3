@@ -24,8 +24,19 @@ export const prepareConsolidatedData = (selectedReports) => {
             .map(([cat, total]) => `${cat}: ${total}%`)
             .join(' | ');
     } else {
-        avgAvance = selectedReports
-            .map(r => `${r.minigranja || 'S/N'}: ${r.data?.avance_porcentaje || '0%'}`)
+        // Different Sites: Group and Sum by site name
+        const siteTotals = {};
+        selectedReports.forEach(r => {
+            const site = (r.minigranja || 'S/N').toUpperCase();
+            const val = String(r.data?.avance_porcentaje || '0');
+            const num = parseInt(val.replace(/[^0-9]/g, '')) || 0;
+
+            if (!siteTotals[site]) siteTotals[site] = 0;
+            siteTotals[site] += num;
+        });
+
+        avgAvance = Object.entries(siteTotals)
+            .map(([site, total]) => `${site}: ${total}%`)
             .join(' | ');
     }
 
@@ -52,9 +63,15 @@ export const prepareConsolidatedData = (selectedReports) => {
         novedades: consolidateText('novedades'),
         materiales_llegaron: selectedReports.some(r => r.data?.materiales_llegaron),
         materiales_detalle: consolidateText('materiales_detalle'),
-        fotosGrouped: selectedReports.map(r => ({
-            minigranja: r.minigranja || 'S/N',
-            fotos: (r.data?.fotos || []).filter(f => f && f.base64)
+        fotosGrouped: Object.entries(selectedReports.reduce((acc, r) => {
+            const site = (r.minigranja || 'S/N').toUpperCase();
+            if (!acc[site]) acc[site] = [];
+            const validFotos = (r.data?.fotos || []).filter(f => f && f.base64);
+            acc[site].push(...validFotos);
+            return acc;
+        }, {})).map(([site, fotos]) => ({
+            minigranja: site,
+            fotos: fotos
         })).filter(g => g.fotos.length > 0),
         gps_location: firstGPS ? {
             lat: Number(firstGPS.lat),
