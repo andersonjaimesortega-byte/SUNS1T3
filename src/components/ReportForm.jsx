@@ -181,6 +181,22 @@ const ReportForm = ({ onBack, onSave }) => {
         };
         recognition.start();
     };
+    const startSmartVoiceCapture = () => {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert('Tu navegador no soporta dictado por voz.');
+            return;
+        }
+
+        const recognition = new window.webkitSpeechRecognition();
+        recognition.lang = 'es-ES';
+        recognition.onstart = () => setActiveVoiceField('smart');
+        recognition.onend = () => setActiveVoiceField(null);
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            processSmartDictation(transcript);
+        };
+        recognition.start();
+    };
 
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-24">
@@ -194,8 +210,8 @@ const ReportForm = ({ onBack, onSave }) => {
             <form onSubmit={handleSubmit} className="p-4 space-y-6 max-w-2xl mx-auto">
                 {/* GPS Status Banner */}
                 <div className={`p-4 rounded-xl flex items-center gap-3 border ${gpsStatus === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' :
-                        gpsStatus === 'error' ? 'bg-red-500/10 border-red-500/30 text-red-500' :
-                            'bg-zinc-800 border-zinc-700 text-zinc-400'
+                    gpsStatus === 'error' ? 'bg-red-500/10 border-red-500/30 text-red-500' :
+                        'bg-zinc-800 border-zinc-700 text-zinc-400'
                     }`}>
                     {gpsStatus === 'success' ? <MapPin className="w-5 h-5" /> :
                         gpsStatus === 'error' ? <AlertCircle className="w-5 h-5" /> :
@@ -297,8 +313,8 @@ const ReportForm = ({ onBack, onSave }) => {
                             disabled={!formData.categoria}
                             onClick={startSmartVoiceCapture}
                             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${activeVoiceField === 'smart'
-                                    ? 'bg-red-500 text-white animate-pulse'
-                                    : formData.categoria ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 active:scale-90' : 'bg-zinc-800 text-zinc-600 grayscale'
+                                ? 'bg-red-500 text-white animate-pulse'
+                                : formData.categoria ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 active:scale-90' : 'bg-zinc-800 text-zinc-600 grayscale'
                                 }`}
                         >
                             <Mic className="w-8 h-8" />
