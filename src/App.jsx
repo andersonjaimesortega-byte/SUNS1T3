@@ -109,17 +109,53 @@ const Dashboard = () => {
         );
       default:
         return (
-          <div className="space-y-8 py-8 animate-in fade-in duration-500">
-            <section className="bg-[var(--color-quoia-primary)]/5 border border-[var(--color-quoia-primary)]/10 p-8 rounded-[32px] relative overflow-hidden group">
-              <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-quoia-primary)]/10 rounded-full blur-3xl group-hover:bg-[var(--color-quoia-primary)]/20 transition-all duration-700"></div>
+          <div className="space-y-8 py-4 animate-in fade-in duration-500">
+            {/* New Corporate Dashboard Section */}
+            <section className="bg-white border border-[var(--color-border)] p-6 rounded-[32px] shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-sm font-black uppercase tracking-widest text-[var(--color-brand-blue)]">Métricas de Rendimiento</h3>
+                <div className="px-3 py-1 bg-[var(--color-brand-green)]/10 text-[var(--color-brand-green)] text-[10px] font-black rounded-full border border-[var(--color-brand-green)]/20">ÓPTIMO</div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Simplified Chart 1: Progress */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-tighter">
+                    <span>Avance Global (Mes)</span>
+                    <span className="text-[var(--color-brand-green)]">74%</span>
+                  </div>
+                  <div className="h-3 bg-[var(--color-background)] rounded-full overflow-hidden border border-[var(--color-border)]">
+                    <div className="h-full bg-gradient-to-r from-[var(--color-brand-blue)] to-[var(--color-brand-green)] w-[74%] rounded-full shadow-[0_0_10px_rgba(59,179,57,0.3)]"></div>
+                  </div>
+                </div>
+
+                {/* Weekly Activity Grid */}
+                <div className="grid grid-cols-7 gap-1.5">
+                  {[40, 70, 90, 30, 80, 20, 10].map((h, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div className="w-full bg-[var(--color-background)] h-12 rounded-lg relative overflow-hidden flex items-end border border-[var(--color-border)]">
+                        <div
+                          style={{ height: `${h}%` }}
+                          className={`w-full transition-all duration-1000 ${h > 50 ? 'bg-[var(--color-brand-green)]' : 'bg-[var(--color-brand-blue)]'} opacity-80`}
+                        ></div>
+                      </div>
+                      <span className="text-[8px] font-bold opacity-40 uppercase">D{i + 1}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-[var(--color-brand-blue)]/5 border border-[var(--color-brand-blue)]/10 p-8 rounded-[32px] relative overflow-hidden group">
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-brand-blue)]/10 rounded-full blur-3xl group-hover:bg-[var(--color-brand-blue)]/20 transition-all duration-700"></div>
               <div className="relative z-10">
-                <h2 className="text-2xl font-black mb-2 flex items-center gap-3 tracking-tight">Bitácora de Obra</h2>
-                <p className="text-sm text-[var(--color-text-muted)] mb-8 max-w-xs leading-relaxed">Registra avances, personal y novedades con dictado inteligente.</p>
+                <h2 className="text-2xl font-black mb-2 flex items-center gap-3 tracking-tight text-[var(--color-brand-blue)]">Bitácora Técnica</h2>
+                <p className="text-sm text-[var(--color-text-muted)] mb-8 max-w-xs leading-relaxed">Registro oficial de actividades y geolocalización SunSite.</p>
                 <button
                   onClick={() => setViewState('form')}
-                  className="w-full bg-[var(--color-quoia-primary)] hover:scale-[1.02] active:scale-[0.98] text-[var(--color-background)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-[var(--color-quoia-primary)]/20 text-sm uppercase tracking-widest"
+                  className="w-full bg-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)]/90 active:scale-[0.98] text-white font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-[var(--color-brand-blue)]/20 text-sm uppercase tracking-widest"
                 >
-                  <PlusCircle className="w-5 h-5 font-bold" /> Nueva Bitácora Oficial
+                  <PlusCircle className="w-5 h-5 font-bold" /> Generar Reporte Diario
                 </button>
               </div>
             </section>
@@ -127,46 +163,46 @@ const Dashboard = () => {
             <nav className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => setViewState('history')}
-                className="flex flex-col items-center justify-center p-8 bg-[var(--color-card)] border border-[var(--color-border)] rounded-[32px] hover:border-[var(--color-quoia-primary)]/30 transition-all active:scale-95 gap-4 group"
+                className="flex flex-col items-center justify-center p-8 bg-white border border-[var(--color-border)] rounded-[32px] hover:border-[var(--color-brand-blue)]/30 transition-all active:scale-95 gap-4 group"
               >
-                <div className="p-4 bg-[var(--color-background)] rounded-2xl group-hover:bg-[var(--color-quoia-primary)]/10 transition-colors">
-                  <History className="w-8 h-8 text-[var(--color-text-muted)] group-hover:text-[var(--color-quoia-primary)]" />
+                <div className="p-4 bg-[var(--color-background)] rounded-2xl group-hover:bg-[var(--color-brand-blue)]/10 transition-colors">
+                  <History className="w-8 h-8 text-[var(--color-brand-blue)]" />
                 </div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Historial</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] group-hover:text-[var(--color-text)]">Historial</span>
               </button>
 
               <button
                 onClick={() => setViewState('settings')}
-                className="flex flex-col items-center justify-center p-8 bg-[var(--color-card)] border border-[var(--color-border)] rounded-[32px] hover:border-[var(--color-quoia-primary)]/30 transition-all active:scale-95 gap-4 group"
+                className="flex flex-col items-center justify-center p-8 bg-white border border-[var(--color-border)] rounded-[32px] hover:border-[var(--color-brand-blue)]/30 transition-all active:scale-95 gap-4 group"
               >
-                <div className="p-4 bg-[var(--color-background)] rounded-2xl group-hover:bg-[var(--color-quoia-primary)]/10 transition-colors">
-                  <Settings className="w-8 h-8 text-[var(--color-text-muted)] group-hover:text-[var(--color-quoia-primary)]" />
+                <div className="p-4 bg-[var(--color-background)] rounded-2xl group-hover:bg-[var(--color-brand-blue)]/10 transition-colors">
+                  <Settings className="w-8 h-8 text-[var(--color-brand-blue)]" />
                 </div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Ajustes</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] group-hover:text-[var(--color-text)]">Ingeniero</span>
               </button>
             </nav>
 
             {recentReports.length > 0 && (
               <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-700">
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-[var(--color-text-muted)]">Actividad Reciente</h3>
-                  <button onClick={() => setViewState('history')} className="text-[10px] font-bold text-[var(--color-quoia-primary)] uppercase tracking-tight hover:underline">Ver Todo</button>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-[var(--color-text-muted)]">Últimos Registros</h3>
+                  <button onClick={() => setViewState('history')} className="text-[10px] font-bold text-[var(--color-brand-blue)] uppercase tracking-tight hover:underline">Auditar Todo</button>
                 </div>
                 <div className="space-y-3">
                   {recentReports.map(report => (
-                    <div key={report.id} className="bg-[var(--color-card)] border border-[var(--color-border)] p-4 rounded-2xl flex items-center justify-between">
+                    <div key={report.id} className="bg-white border border-[var(--color-border)] p-4 rounded-2xl flex items-center justify-between shadow-sm">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[var(--color-background)] rounded-xl flex items-center justify-center border border-[var(--color-border)] text-[var(--color-quoia-primary)]">
+                        <div className="w-10 h-10 bg-[var(--color-background)] rounded-xl flex items-center justify-center border border-[var(--color-border)] text-[var(--color-brand-blue)]">
                           <FileText className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="text-xs font-black">{report.minigranja}</p>
-                          <p className="text-[10px] text-[var(--color-text-muted)] font-medium uppercase tracking-tighter">{report.date}</p>
+                          <p className="text-xs font-black text-slate-800">{report.minigranja}</p>
+                          <p className="text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-tighter">{report.date}</p>
                         </div>
                       </div>
                       <button
                         onClick={() => generateReportPDF(report.data, user)}
-                        className="p-2.5 text-[var(--color-text-muted)] hover:text-[var(--color-quoia-primary)] hover:bg-[var(--color-quoia-primary)]/10 rounded-xl transition-all"
+                        className="p-2.5 text-[var(--color-text-muted)] hover:text-[var(--color-brand-green)] hover:bg-[var(--color-brand-green)]/10 rounded-xl transition-all"
                       >
                         <Download className="w-4 h-4" />
                       </button>

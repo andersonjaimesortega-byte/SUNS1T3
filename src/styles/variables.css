@@ -2,27 +2,27 @@
     /* Fonts */
     --font-primary: 'Poppins', sans-serif;
 
-    /* Corporate Colors */
-    --color-quoia-primary: #b8cf3e;
-    /* Primary Brand Color */
-    --color-zentrack-primary: #fd9c10;
-    /* Alert / Highlight Color */
+    /* Corporate Colors - Solenium Scheme */
+    --color-brand-green: #3BB339;
+    --color-brand-blue: #1D99CC;
+
+    --color-quoia-primary: var(--color-brand-green);
+    --color-zentrack-primary: var(--color-brand-blue);
 
     /* Semantic Colors */
-    --color-background: #09090b;
-    /* zinc-950 */
-    --color-card: #18181b;
-    /* zinc-900 */
-    --color-border: #27272a;
-    /* zinc-800 */
-    --color-text: #f4f4f5;
-    /* zinc-100 */
-    --color-text-muted: #a1a1aa;
-    /* zinc-400 */
+    --color-background: rgba(29, 153, 204, 0.05);
+    /* Ultra-light Technical Blue */
+    --color-card: #ffffff;
+    --color-border: rgba(29, 153, 204, 0.1);
+    --color-text: #1e293b;
+    /* Slate 800 */
+    --color-text-muted: #64748b;
+    /* Slate 500 */
 
     /* Action Colors */
-    --color-success: var(--color-quoia-primary);
-    --color-warning: var(--color-zentrack-primary);
+    --color-success: var(--color-brand-green);
+    --color-warning: #f59e0b;
+    /* Amber 500 */
     --color-error: #ef4444;
 
     /* Transitions */

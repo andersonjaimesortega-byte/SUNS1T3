@@ -4,7 +4,7 @@ export const prepareConsolidatedData = (selectedReports) => {
     if (!selectedReports || selectedReports.length === 0) return null;
 
     // 1. Progression Logic (Same site = Sum by category | Different sites = Join by ID)
-    const uniqueMinigranjas = [...new Set(selectedReports.map(r => (r.minigranja || 'S/N').toUpperCase()))];
+    const uniqueMinigranjas = [...new Set(selectedReports.map(r => (r.minigranja || 'S/N').trim().toUpperCase()))];
     const isSameSite = uniqueMinigranjas.length === 1;
     const displayMinigranjaId = isSameSite
         ? uniqueMinigranjas[0]
@@ -14,7 +14,7 @@ export const prepareConsolidatedData = (selectedReports) => {
     if (isSameSite) {
         const categoryTotals = {};
         selectedReports.forEach(r => {
-            const cat = (r.data?.categoria || 'Sin Categoría').toUpperCase();
+            const cat = (r.data?.categoria || 'Sin Categoría').trim().toUpperCase();
             const val = String(r.data?.avance_porcentaje || '0');
             const num = parseInt(val.replace(/[^0-9]/g, '')) || 0;
             if (!categoryTotals[cat]) categoryTotals[cat] = 0;
@@ -27,7 +27,7 @@ export const prepareConsolidatedData = (selectedReports) => {
         // Different Sites: Group and Sum by site name
         const siteTotals = {};
         selectedReports.forEach(r => {
-            const site = (r.minigranja || 'S/N').toUpperCase();
+            const site = (r.minigranja || 'S/N').trim().toUpperCase();
             const val = String(r.data?.avance_porcentaje || '0');
             const num = parseInt(val.replace(/[^0-9]/g, '')) || 0;
 
@@ -64,7 +64,7 @@ export const prepareConsolidatedData = (selectedReports) => {
         materiales_llegaron: selectedReports.some(r => r.data?.materiales_llegaron),
         materiales_detalle: consolidateText('materiales_detalle'),
         fotosGrouped: Object.entries(selectedReports.reduce((acc, r) => {
-            const site = (r.minigranja || 'S/N').toUpperCase();
+            const site = (r.minigranja || 'S/N').trim().toUpperCase(); // Standardize site key
             if (!acc[site]) acc[site] = [];
             const validFotos = (r.data?.fotos || []).filter(f => f && f.base64);
             acc[site].push(...validFotos);

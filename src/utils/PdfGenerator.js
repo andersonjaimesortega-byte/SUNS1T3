@@ -6,11 +6,13 @@ const createPDFBlob = async (formData, user) => {
     const margin = 20;
     let cursorY = 20;
 
-    // Corporate Colors
-    const quoiaGreen = [184, 207, 62];
-    const zentrackOrange = [253, 156, 16];
-    const darkGray = [40, 40, 40];
-    const lightGray = [150, 150, 150];
+    // Corporate Colors - Solenium Scheme
+    const brandGreen = [59, 179, 57]; // #3BB339
+    const brandBlue = [29, 153, 204];  // #1D99CC
+    const quoiaGreen = brandGreen;
+    const zentrackOrange = brandBlue; // Using brand blue for highlights
+    const darkGray = [30, 41, 59];    // Slate 800
+    const lightGray = [100, 116, 139]; // Slate 500
 
     // --- Institutional Header ---
     doc.setFillColor(...quoiaGreen);
@@ -33,7 +35,7 @@ const createPDFBlob = async (formData, user) => {
     doc.setFontSize(9);
     const metaX = pageWidth - margin;
     doc.text(`ID PROYECTO: ${formData.minigranjaId || 'N/A'}`, metaX, 20, { align: 'right' });
-    doc.text(`FECHA: ${new Date().toLocaleDateString()}`, metaX, 28, { align: 'right' });
+    doc.text(`FECHA: ${formData.date || new Date().toLocaleDateString()}`, metaX, 28, { align: 'right' });
     doc.text(`EMITIDO POR: ${user.nombre.toUpperCase()}`, metaX, 36, { align: 'right' });
 
     cursorY = 60;

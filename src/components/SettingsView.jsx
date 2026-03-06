@@ -6,15 +6,21 @@ import {
 import { useAuth } from '../context/AuthContext';
 
 const SettingsView = ({ onBack }) => {
-    const { user, logout, syncUsers } = useAuth();
-    console.log('--- RENDERING SETTINGS VIEW ---');
-    console.log('User status:', !!user, user?.nombre);
+    const { user, logout, syncUsers, updateUserName } = useAuth();
     const [syncing, setSyncing] = useState(false);
+    const [newName, setNewName] = useState(user?.nombre || '');
 
     const handleSync = async () => {
         setSyncing(true);
         await syncUsers();
         setTimeout(() => setSyncing(false), 800);
+    };
+
+    const handleUpdateName = () => {
+        if (newName.trim()) {
+            updateUserName(newName.trim());
+            alert('Nombre técnico actualizado correctamente.');
+        }
     };
 
     return (
@@ -30,19 +36,42 @@ const SettingsView = ({ onBack }) => {
             </header>
 
             <main className="p-5 max-w-xl mx-auto space-y-6">
-                {/* Profile Card */}
-                <section className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-5">
-                        <User size={120} />
+                {/* Profile Section */}
+                <section className="bg-white border border-[var(--color-border)] p-8 rounded-[32px] shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-5">
+                        <User size={100} className="text-[var(--color-brand-blue)]" />
                     </div>
-                    <div className="relative z-10 flex items-center gap-4">
-                        <div className="w-16 h-16 bg-[var(--color-quoia-primary)]/10 rounded-3xl flex items-center justify-center border-2 border-[var(--color-quoia-primary)]/20 shadow-inner">
-                            <span className="text-2xl font-black text-[var(--color-quoia-primary)]">{user?.nombre?.charAt(0)}</span>
+
+                    <div className="relative z-10 space-y-6">
+                        <div className="flex items-center gap-5">
+                            <div className="w-20 h-20 bg-[var(--color-brand-blue)]/10 rounded-[28px] flex items-center justify-center border-2 border-[var(--color-brand-blue)]/20 shadow-inner">
+                                <span className="text-3xl font-black text-[var(--color-brand-blue)]">{user?.nombre?.charAt(0)}</span>
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-black tracking-tight text-slate-800">{user?.nombre}</h2>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-text-muted)]">{user?.rol}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-xl font-black tracking-tight">{user?.nombre}</h2>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">{user?.rol}</p>
-                            <p className="text-[10px] bg-[var(--color-quoia-primary)]/5 text-[var(--color-quoia-primary)] px-2 py-0.5 rounded-full inline-block mt-2 font-bold border border-[var(--color-quoia-primary)]/10">ID: {user?.id}</p>
+
+                        <div className="space-y-4 pt-4 border-t border-[var(--color-border)]">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)] px-1">Nombre Completo del Ingeniero</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={newName}
+                                        onChange={(e) => setNewName(e.target.value)}
+                                        className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-[var(--color-brand-blue)] text-slate-700"
+                                        placeholder="Nombre del Ingeniero"
+                                    />
+                                    <button
+                                        onClick={handleUpdateName}
+                                        className="p-3 bg-[var(--color-brand-blue)] text-white rounded-xl shadow-lg shadow-[var(--color-brand-blue)]/20 active:scale-95 transition-all flex items-center justify-center shrink-0 w-12 h-12"
+                                    >
+                                        <Check className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>

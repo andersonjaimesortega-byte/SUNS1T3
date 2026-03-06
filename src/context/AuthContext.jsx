@@ -80,19 +80,27 @@ export const AuthProvider = ({ children }) => {
             console.log('Login successful for:', foundUser.nombre);
             setUser(foundUser);
             localStorage.setItem('minigranja_user', JSON.stringify(foundUser));
+            localStorage.setItem('sunsite_user', JSON.stringify(foundUser));
             return { success: true };
         }
         console.warn('Login failed: ID not found in current list');
         return { success: false, message: 'ID de usuario no válido' };
     };
 
+    const updateUserName = (newName) => {
+        if (!user) return;
+        const updatedUser = { ...user, nombre: newName };
+        setUser(updatedUser);
+        localStorage.setItem('sunsite_user', JSON.stringify(updatedUser));
+    };
+
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('minigranja_user');
+        localStorage.removeItem('sunsite_user');
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading, syncUsers }}>
+        <AuthContext.Provider value={{ user, login, logout, syncUsers, updateUserName, loading }}>
             {children}
         </AuthContext.Provider>
     );
