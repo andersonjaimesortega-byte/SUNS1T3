@@ -110,42 +110,6 @@ const Dashboard = () => {
       default:
         return (
           <div className="space-y-8 py-4 animate-in fade-in duration-500">
-            {/* New Corporate Dashboard Section */}
-            <section className="bg-white border border-[var(--color-border)] p-6 rounded-[32px] shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-black uppercase tracking-widest text-[var(--color-brand-blue)]">Métricas de Rendimiento</h3>
-                <div className="px-3 py-1 bg-[var(--color-brand-green)]/10 text-[var(--color-brand-green)] text-[10px] font-black rounded-full border border-[var(--color-brand-green)]/20">ÓPTIMO</div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Simplified Chart 1: Progress */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-tighter">
-                    <span>Avance Global (Mes)</span>
-                    <span className="text-[var(--color-brand-green)]">74%</span>
-                  </div>
-                  <div className="h-3 bg-[var(--color-background)] rounded-full overflow-hidden border border-[var(--color-border)]">
-                    <div className="h-full bg-gradient-to-r from-[var(--color-brand-blue)] to-[var(--color-brand-green)] w-[74%] rounded-full shadow-[0_0_10px_rgba(59,179,57,0.3)]"></div>
-                  </div>
-                </div>
-
-                {/* Weekly Activity Grid */}
-                <div className="grid grid-cols-7 gap-1.5">
-                  {[40, 70, 90, 30, 80, 20, 10].map((h, i) => (
-                    <div key={i} className="flex flex-col items-center gap-1">
-                      <div className="w-full bg-[var(--color-background)] h-12 rounded-lg relative overflow-hidden flex items-end border border-[var(--color-border)]">
-                        <div
-                          style={{ height: `${h}%` }}
-                          className={`w-full transition-all duration-1000 ${h > 50 ? 'bg-[var(--color-brand-green)]' : 'bg-[var(--color-brand-blue)]'} opacity-80`}
-                        ></div>
-                      </div>
-                      <span className="text-[8px] font-bold opacity-40 uppercase">D{i + 1}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
             <section className="bg-[var(--color-brand-blue)]/5 border border-[var(--color-brand-blue)]/10 p-8 rounded-[32px] relative overflow-hidden group">
               <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-brand-blue)]/10 rounded-full blur-3xl group-hover:bg-[var(--color-brand-blue)]/20 transition-all duration-700"></div>
               <div className="relative z-10">

@@ -30,7 +30,7 @@ const Login = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                     <div className="space-y-2">
-                        <label htmlFor="userId" className="block text-xs font-black uppercase tracking-widest ml-1 text-[var(--color-text-muted)]">
+                        <label htmlFor="userId" className="block text-xs font-black uppercase tracking-widest ml-1 text-slate-500">
                             Identificación ID
                         </label>
                         <input
@@ -39,7 +39,7 @@ const Login = () => {
                             value={userId}
                             onChange={(e) => setUserId(e.target.value)}
                             placeholder="Ej: ING-002"
-                            className="w-full px-5 py-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl focus:ring-2 focus:ring-[var(--color-quoia-primary)]/50 focus:border-[var(--color-quoia-primary)] transition-all outline-none font-bold"
+                            className="w-full px-5 py-4 bg-white border border-[var(--color-border)] rounded-2xl focus:ring-2 focus:ring-[var(--color-brand-blue)]/50 focus:border-[var(--color-brand-blue)] transition-all outline-none font-bold text-slate-800"
                             required
                         />
                     </div>
@@ -52,7 +52,7 @@ const Login = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-[var(--color-quoia-primary)] hover:scale-[1.02] active:scale-[0.98] text-[var(--color-background)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-[var(--color-quoia-primary)]/20 text-sm uppercase tracking-widest"
+                        className="w-full bg-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)]/90 active:scale-[0.98] text-white font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-[var(--color-brand-blue)]/20 text-sm uppercase tracking-widest"
                     >
                         <LogIn className="w-5 h-5 font-bold" />
                         Validar Acceso
