@@ -30,7 +30,7 @@ body {
 
 /* Corporate Buttons with Depth */
 .btn-action {
-  background: linear-gradient(135deg, var(--color-brand-green) 0%, #359f33 100%);
+  background: linear-gradient(135deg, var(--color-brand-green) 10%, #359f33 90%);
   color: white;
   box-shadow: 0 4px 12px rgba(59, 179, 57, 0.25), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
   border: none;
@@ -38,9 +38,9 @@ body {
 }
 
 .btn-action:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(59, 179, 57, 0.3);
-  filter: brightness(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(59, 179, 57, 0.35);
+  filter: brightness(1.08);
 }
 
 .btn-action:active {
@@ -50,7 +50,7 @@ body {
 }
 
 .btn-nav {
-  background: linear-gradient(135deg, var(--color-brand-blue) 0%, #1a89b8 100%);
+  background: linear-gradient(135deg, var(--color-brand-blue) 10%, #1a89b8 90%);
   color: white;
   box-shadow: 0 4px 12px rgba(29, 153, 204, 0.25), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
   border: none;
@@ -58,15 +58,37 @@ body {
 }
 
 .btn-nav:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(29, 153, 204, 0.3);
-  filter: brightness(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(29, 153, 204, 0.35);
+  filter: brightness(1.08);
 }
 
 .btn-nav:active {
   transform: translateY(1px);
   box-shadow: 0 2px 6px rgba(29, 153, 204, 0.2);
   filter: brightness(0.95);
+}
+
+/* Pulse Animation for Dictation */
+@keyframes pulse-soundwave {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(29, 153, 204, 0.4);
+  }
+
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 20px rgba(29, 153, 204, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(29, 153, 204, 0);
+  }
+}
+
+.animate-pulse-soundwave {
+  animation: pulse-soundwave 1.5s infinite;
 }
 
 /* Ensure accessible touch targets */

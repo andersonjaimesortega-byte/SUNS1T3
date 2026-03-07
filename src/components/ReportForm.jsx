@@ -163,21 +163,37 @@ const ReportForm = ({ onBack, onSave }) => {
     const nextStep = () => setStep(s => Math.min(s + 1, 4));
     const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
-    const renderStepIndicator = () => (
-        <div className="px-6 py-2 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-background)]/50 backdrop-blur-md sticky top-[68px] z-10">
-            {[1, 2, 3, 4].map(i => (
-                <div key={i} className="flex items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${step === i ? 'bg-[var(--color-quoia-primary)] text-[var(--color-background)] scale-110 shadow-lg shadow-[var(--color-quoia-primary)]/20' :
-                        step > i ? 'bg-[var(--color-success)]/20 text-[var(--color-success)] border border-[var(--color-success)]/30' :
-                            'bg-[var(--color-card)] text-[var(--color-text-muted)] border border-[var(--color-border)]'
-                        }`}>
-                        {step > i ? <CheckCircle className="w-4 h-4" /> : i}
-                    </div>
-                    {i < 4 && <div className={`w-8 h-[2px] mx-2 ${step > i ? 'bg-[var(--color-success)]/30' : 'bg-[var(--color-border)]'}`}></div>}
-                </div>
-            ))}
-        </div>
-    );
+    const renderStepIndicator = () => {
+        const steps = [
+            { id: 1, label: 'Acceso' },
+            { id: 2, label: 'Categoría' },
+            { id: 3, label: 'Progreso' },
+            { id: 4, label: 'Fotos' }
+        ];
+
+        return (
+            <div className="px-5 py-4 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-background)]/80 backdrop-blur-md sticky top-[68px] z-10 overflow-x-auto no-scrollbar">
+                {steps.map((s, idx) => (
+                    <React.Fragment key={s.id}>
+                        <div className="flex flex-col items-center gap-1.5 shrink-0">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold transition-all duration-300 ${step === s.id ? 'bg-[var(--color-brand-blue)] text-white scale-110 shadow-lg shadow-[var(--color-brand-blue)]/20 shadow-md ring-4 ring-[var(--color-brand-blue)]/10' :
+                                step > s.id ? 'bg-[var(--color-brand-green)] text-white' :
+                                    'bg-[var(--color-card)] text-[var(--color-text-muted)] border border-[var(--color-border)]'
+                                }`}>
+                                {step > s.id ? <CheckCircle className="w-4 h-4" /> : s.id}
+                            </div>
+                            <span className={`text-[9px] font-bold uppercase tracking-tighter ${step === s.id ? 'text-[var(--color-brand-blue)]' : (step > s.id ? 'text-[var(--color-brand-green)]' : 'text-[var(--color-text-muted)]')}`}>
+                                {s.label}
+                            </span>
+                        </div>
+                        {idx < steps.length - 1 && (
+                            <div className={`h-[2px] flex-1 mx-2 min-w-[15px] ${step > s.id ? 'bg-[var(--color-brand-green)]/40' : 'bg-[var(--color-border)]'}`}></div>
+                        )}
+                    </React.Fragment>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] pb-32 font-[family:var(--font-primary)]">
@@ -281,13 +297,23 @@ const ReportForm = ({ onBack, onSave }) => {
                 {/* STEP 3: Progress & AI */}
                 {step === 3 && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                        <div className="p-8 bg-[var(--color-quoia-primary)]/5 border-2 border-dashed border-[var(--color-quoia-primary)]/20 rounded-[40px] text-center">
-                            <button type="button" onClick={startSmartVoiceCapture} className={`w-20 h-20 rounded-full flex items-center justify-center transition-all mx-auto ${activeVoiceField === 'smart' ? 'bg-[var(--color-error)] text-white animate-pulse' : 'bg-[var(--color-quoia-primary)] text-[var(--color-background)] shadow-xl shadow-[var(--color-quoia-primary)]/20 hover:scale-105'}`}>
-                                <Mic className="w-10 h-10" />
+                        <div className="p-10 bg-[var(--color-brand-blue)]/5 border-2 border-dashed border-[var(--color-brand-blue)]/20 rounded-[48px] text-center shadow-inner relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
+                            <button
+                                type="button"
+                                onClick={startSmartVoiceCapture}
+                                className={`w-24 h-24 rounded-full flex items-center justify-center transition-all mx-auto relative z-10 ${activeVoiceField === 'smart' ? 'bg-[#ef4444] text-white animate-pulse-soundwave' : 'btn-nav hover:scale-105 active:scale-95'}`}
+                            >
+                                <Mic className={`w-12 h-12 ${activeVoiceField === 'smart' ? 'animate-bounce' : ''}`} />
                             </button>
-                            <p className="mt-4 text-xs font-black uppercase tracking-widest text-[var(--color-quoia-primary)]">
-                                {activeVoiceField === 'smart' ? 'Escuchando Obra...' : 'Dictado Inteligente'}
-                            </p>
+                            <div className="mt-6 space-y-1 relative z-10">
+                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-[var(--color-brand-blue)]">
+                                    {activeVoiceField === 'smart' ? 'Grabación en curso' : 'Dictado Inteligente'}
+                                </h3>
+                                <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest opacity-60">
+                                    {activeVoiceField === 'smart' ? 'El sistema procesa tu voz en tiempo real' : 'Pulsa el botón para dictar reporte completo'}
+                                </p>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-6">

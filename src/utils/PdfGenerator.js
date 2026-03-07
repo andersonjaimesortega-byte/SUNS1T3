@@ -79,16 +79,16 @@ const createPDFBlob = async (formData, user) => {
     doc.setTextColor(...darkGray);
     doc.setFontSize(9);
 
-    // Label Row 1: Site/Minigranja (SKIP IF CONSOLIDATED to keep it clean)
+    // Label Row 1: Site/Minigranja (ONLY FOR INDIVIDUAL)
     if (!formData.isConsolidated) {
         doc.setFont('helvetica', 'bold');
         doc.text('ID MINIGRANJA:', margin, cursorY);
         doc.setFont('helvetica', 'normal');
-        doc.text(formData.minigranjaId || 'N/A', margin + 35, cursorY);
+        doc.text(formData.minigranjaId || 'N/A', margin + 48, cursorY);
         cursorY += 8;
     }
 
-    // Label Row 2: Semaphore (Separate line to avoid overlap)
+    // Label Row 2: Semaphore
     doc.setFont('helvetica', 'bold');
     doc.text('ESTADO DE SEGURIDAD:', margin, cursorY);
     const semaphoreValue = formData.isConsolidated ? 'ESTABLE' : (formData.materiales_llegaron ? 'ÓPTIMO' : 'ESTÁNDAR');
@@ -104,7 +104,7 @@ const createPDFBlob = async (formData, user) => {
     doc.text(formData.date || new Date().toLocaleDateString(), margin + 48, cursorY);
     cursorY += 12;
 
-    // --- BLOCK 2: UBICACIÓN GPS ---
+    // --- BLOCK 2: UBICACIÓN GPS (ONLY FOR INDIVIDUAL) ---
     if (formData.gps_location && !formData.isConsolidated) {
         checkPageBreak(25);
         doc.setFont('helvetica', 'bold');
@@ -121,7 +121,6 @@ const createPDFBlob = async (formData, user) => {
         const coords = `${formData.gps_location.lat.toFixed(6)}, ${formData.gps_location.lng.toFixed(6)}`;
         doc.text(coords, margin + 35, cursorY);
 
-        // Link to Google Maps
         doc.setTextColor(...brandBlue);
         doc.setFontSize(8);
         const mapsUrl = `https://www.google.com/maps?q=${formData.gps_location.lat},${formData.gps_location.lng}`;
@@ -138,42 +137,21 @@ const createPDFBlob = async (formData, user) => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(...brandBlue);
-    doc.text(formData.isConsolidated ? 'DESARROLLO TÉCNICO ACUMULADO' : 'DESARROLLO TÉCNICO', margin, cursorY);
+    const block3Title = formData.isConsolidated ? 'DESARROLLO TÉCNICO ACUMULADO' : 'DESARROLLO TÉCNICO';
+    doc.text(block3Title, margin, cursorY);
     doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
     cursorY += 12;
 
     const sections = [
-        { label: 'AVANCE DE OBRA', content: formData.avance_porcentaje, icon: '○' },
-        {
-            label: 'ACTIVIDADES EJECUTADAS',
-            content: formData.isConsolidated ? formData.actividades : (formData.actividades ? `[${formData.date || new Date().toLocaleDateString()}] ${formData.actividades}` : null),
-            icon: '○'
-        },
-        {
-            label: 'RETOS Y SOLUCIONES',
-            content: formData.isConsolidated ? formData.retos : (formData.retos ? `[${formData.date || new Date().toLocaleDateString()}] ${formData.retos}` : null),
-            highlight: [241, 245, 249],
-            icon: '○'
-        },
-        {
-            label: 'NOVEDADES / CLIMA',
-            content: formData.isConsolidated ? formData.novedades : (formData.novedades ? `[${formData.date || new Date().toLocaleDateString()}] ${formData.novedades}` : null),
-            icon: '○'
-        },
-        {
-            label: 'PENDIENTES Y PRÓXIMOS',
-            content: formData.isConsolidated ? formData.pendientes : (formData.pendientes ? `[${formData.date || new Date().toLocaleDateString()}] ${formData.pendientes}` : null),
-            icon: '○'
-        }
+        { label: 'AVANCE DE OBRA:', value: formData.avance_porcentaje || '0%', highlight: [229, 242, 248] },
+        { label: 'ACTIVIDADES REALIZADAS:', value: formData.actividades || 'No reportadas.' },
+        { label: 'RETOS Y SOLUCIONES:', value: formData.retos || 'Sin novedades.' },
+        { label: 'NOVEDADES Y CLIMA:', value: formData.novedades || 'Sin novedades.' }
     ];
 
     sections.forEach(section => {
-        if (!section.content) return;
-
-        const splitText = doc.splitTextToSize(section.content, pageWidth - (margin * 2) - 10);
-        const sectionHeight = (splitText.length * 5) + 15;
-
-        checkPageBreak(sectionHeight);
+        const splitText = doc.splitTextToSize(section.value, pageWidth - (margin * 2) - 10);
+        checkPageBreak((splitText.length * 5) + 15);
 
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(8);
@@ -193,7 +171,7 @@ const createPDFBlob = async (formData, user) => {
         cursorY += (splitText.length * 5) + 12;
     });
 
-    // --- BLOCK 4: RECURSOS Y MATERIALES ---
+    // --- BLOCK 4: RECURSOS Y MATERIALES (SKIP IF CONSOLIDATED) ---
     if (!formData.isConsolidated) {
         checkPageBreak(50);
         doc.setFont('helvetica', 'bold');
@@ -203,7 +181,6 @@ const createPDFBlob = async (formData, user) => {
         doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
         cursorY += 12;
 
-        // Table Background (rgba(29, 153, 204, 0.1) -> [229, 242, 248])
         doc.setFillColor(229, 242, 248);
         doc.rect(margin, cursorY - 5, pageWidth - (margin * 2), 20, 'F');
         doc.setDrawColor(...brandBlue);
@@ -221,7 +198,6 @@ const createPDFBlob = async (formData, user) => {
         doc.text(formData.personal_contratista || '0', pageWidth / 2 + 10, cursorY + 8);
         cursorY += 22;
 
-        // Materials
         if (formData.materiales_detalle || formData.materiales_llegaron) {
             doc.setFontSize(9);
             doc.setFont('helvetica', 'bold');
