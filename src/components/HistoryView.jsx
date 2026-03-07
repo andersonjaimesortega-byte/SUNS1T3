@@ -149,8 +149,8 @@ const HistoryView = ({ onBack, user }) => {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-start">
                                         <h3 className="font-black text-sm tracking-tight truncate uppercase">{report.minigranja}</h3>
-                                        <span className="text-[10px] font-bold text-[var(--color-text-muted)] bg-[var(--color-background)] px-2 py-0.5 rounded-full border border-[var(--color-border)]">
-                                            {report.data.avance_porcentaje}
+                                        <span className="text-[10px] font-black text-[var(--color-brand-green)] bg-[var(--color-brand-green)]/10 px-2.5 py-1 rounded-full border border-[var(--color-brand-green)]/20">
+                                            {report.data.avance_porcentaje || '0%'}
                                         </span>
                                     </div>
                                     <p className="text-[10px] text-[var(--color-text-muted)] font-black uppercase tracking-wider mt-1 truncate">

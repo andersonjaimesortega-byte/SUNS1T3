@@ -83,10 +83,10 @@ const Dashboard = () => {
             <div className="w-full max-w-xs space-y-3">
               <button
                 onClick={() => generateReportPDF(lastReport.data, user)}
-                className="w-full bg-[var(--color-quoia-primary)] text-[var(--color-background)] font-black py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-[var(--color-quoia-primary)]/20 text-sm uppercase tracking-widest"
+                className="w-full bg-[var(--color-brand-green)] text-[var(--color-background)] font-black py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-[var(--color-brand-green)]/20 text-sm uppercase tracking-widest btn-action"
               >
                 <Download className="w-5 h-5" />
-                Descargar PDF Oficial
+                Descargar PDF ({lastReport.data.avance_porcentaje || '0%'})
               </button>
 
               <button
@@ -160,8 +160,13 @@ const Dashboard = () => {
                           <FileText className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="text-xs font-black text-slate-800">{report.minigranja}</p>
-                          <p className="text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-tighter">{report.date}</p>
+                          <p class="text-xs font-black text-slate-800 flex items-center gap-2">
+                            {report.minigranja}
+                            <span className="text-[9px] bg-[var(--color-brand-green)]/10 text-[var(--color-brand-green)] px-1.5 py-0.5 rounded-md border border-[var(--color-brand-green)]/20">
+                              {report.data.avance_porcentaje || '0%'}
+                            </span>
+                          </p>
+                          <p class="text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-tighter">{report.date}</p>
                         </div>
                       </div>
                       <button
