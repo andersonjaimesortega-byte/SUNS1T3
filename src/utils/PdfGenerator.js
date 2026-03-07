@@ -23,9 +23,10 @@ const createPDFBlob = async (formData, user) => {
 
     // Main Title Logic
     doc.setFontSize(16);
+    const siteRef = formData.minigranjaId || formData.minigranja || 'SITIO';
     const titleText = formData.isConsolidated
         ? 'REPORTE CONSOLIDADO DE ACTIVIDADES'
-        : 'REPORTE DIARIO DE ACTIVIDADES';
+        : `REPORTE DIARIO: ${siteRef.toUpperCase()}`;
     doc.text(titleText, margin, 20);
 
     doc.setFontSize(10);
@@ -303,8 +304,8 @@ const createPDFBlob = async (formData, user) => {
 
     const dateStr = new Date().toISOString().split('T')[0];
     const prefix = formData.isConsolidated ? 'CONSOLIDADO' : 'DIARIO';
-    const siteRef = formData.minigranjaId || 'SUNSITE';
-    const filename = `SOLENIUM_${prefix}_${siteRef.substring(0, 15).replace(/\s+/g, '_')}_${dateStr}.pdf`;
+    const siteFilenameRef = formData.minigranjaId || 'SUNSITE';
+    const filename = `SOLENIUM_${prefix}_${siteFilenameRef.substring(0, 15).replace(/\s+/g, '_')}_${dateStr}.pdf`;
 
     return { doc, filename };
 };
