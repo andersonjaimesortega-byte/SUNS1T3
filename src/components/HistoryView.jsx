@@ -164,21 +164,21 @@ const HistoryView = ({ onBack, user }) => {
                                 <div className="flex flex-col gap-2">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleSingleDownload(report); }}
-                                        className="p-2.5 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl hover:text-[var(--color-quoia-primary)] transition-all"
+                                        className="p-2.5 bg-white border border-[var(--color-border)] rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)]/5 hover:border-[var(--color-brand-blue)]/20 shadow-sm transition-all active:scale-95"
                                         title="Descargar"
                                     >
                                         <Download className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={(e) => handleShare(report, e)}
-                                        className="p-2.5 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl hover:text-[var(--color-quoia-primary)] transition-all"
+                                        className="p-2.5 bg-white border border-[var(--color-border)] rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-brand-green)] hover:bg-[var(--color-brand-green)]/5 hover:border-[var(--color-brand-green)]/20 shadow-sm transition-all active:scale-95"
                                         title="Compartir"
                                     >
                                         <Share2 className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={(e) => handleDelete(report.id, e)}
-                                        className="p-2.5 bg-[var(--color-error)]/10 text-[var(--color-error)] rounded-xl hover:bg-[var(--color-error)] transition-all opacity-0 group-hover:opacity-100"
+                                        className="p-2.5 bg-[var(--color-error)]/5 text-[var(--color-error)] rounded-xl border border-[var(--color-error)]/10 hover:bg-[var(--color-error)] hover:text-white transition-all opacity-0 group-hover:opacity-100 shadow-sm active:scale-95"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
@@ -194,14 +194,14 @@ const HistoryView = ({ onBack, user }) => {
                     <div className="max-w-xl mx-auto flex gap-3">
                         <button
                             onClick={handleGenerateSummary}
-                            className="flex-1 bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-text)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:border-[var(--color-quoia-primary)]/30 transition-all text-[10px] uppercase tracking-widest"
+                            className="flex-1 btn-nav text-white font-black py-4.5 rounded-2xl flex items-center justify-center gap-2 shadow-2xl transition-all text-[10px] uppercase tracking-widest active:scale-95"
                         >
-                            <Download className="w-4 h-4 text-[var(--color-quoia-primary)]" />
-                            PDF
+                            <Download className="w-4 h-4" />
+                            Previsualizar PDF
                         </button>
                         <button
                             onClick={handleShareConsolidated}
-                            className="flex-[2] bg-[var(--color-quoia-primary)] text-[var(--color-background)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-[var(--color-quoia-primary)]/20 text-xs uppercase tracking-[0.2em] active:scale-95 transition-all text-center"
+                            className="flex-[2] btn-action text-white font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 shadow-2xl text-xs uppercase tracking-[0.2em] active:scale-95 transition-all text-center"
                         >
                             <Share2 className="w-5 h-5 flex-shrink-0" />
                             <span className="truncate">

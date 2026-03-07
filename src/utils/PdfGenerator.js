@@ -143,7 +143,13 @@ const createPDFBlob = async (formData, user) => {
     cursorY += 12;
 
     const sections = [
-        { label: 'AVANCE DE OBRA:', value: formData.avance_porcentaje || '0%', highlight: [229, 242, 248] },
+        {
+            label: 'AVANCE DE OBRA:',
+            value: formData.avance_porcentaje
+                ? (formData.avance_porcentaje.toString().includes('%') ? formData.avance_porcentaje : `${formData.avance_porcentaje}%`)
+                : '0%',
+            highlight: [229, 242, 248]
+        },
         { label: 'ACTIVIDADES REALIZADAS:', value: formData.actividades || 'No reportadas.' },
         { label: 'RETOS Y SOLUCIONES:', value: formData.retos || 'Sin novedades.' },
         { label: 'NOVEDADES Y CLIMA:', value: formData.novedades || 'Sin novedades.' }
