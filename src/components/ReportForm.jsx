@@ -184,7 +184,7 @@ const ReportForm = ({ onBack, onSave }) => {
             <header className="bg-[var(--color-card)] border-b border-[var(--color-border)] p-5 sticky top-0 z-20 flex items-center gap-4 backdrop-blur-lg bg-opacity-80">
                 <button
                     onClick={step === 1 ? onBack : prevStep}
-                    className="p-2.5 -ml-2 text-[var(--color-text-muted)] hover:text-[var(--color-quoia-primary)] hover:bg-[var(--color-quoia-primary)]/10 rounded-xl transition-all active:scale-95"
+                    className="p-2.5 -ml-2 text-[var(--color-text-muted)] hover:text-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)]/10 rounded-xl transition-all active:scale-95"
                 >
                     <ArrowLeft className="w-6 h-6" />
                 </button>
@@ -298,11 +298,12 @@ const ReportForm = ({ onBack, onSave }) => {
 
                             {[
                                 { id: 'actividades', label: 'Actividades', Icon: CheckCircle },
-                                { id: 'retos', label: 'Retos / Soluciones', Icon: AlertCircle }
+                                { id: 'retos', label: 'Retos / Soluciones', Icon: AlertCircle },
+                                { id: 'novedades', label: 'Novedades / Clima', Icon: FileEdit }
                             ].map(item => (
-                                <div key={item.id} className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-4">
+                                <div key={item.id} className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-4 shadow-sm">
                                     <div className="flex items-center gap-2 text-[var(--color-text-muted)] mb-1">
-                                        <item.Icon className="w-4 h-4" />
+                                        <item.Icon className="w-4 h-4 text-[var(--color-brand-blue)]" />
                                         <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
                                     </div>
                                     <textarea name={item.id} value={formData[item.id]} onChange={handleInputChange} className="w-full bg-transparent outline-none text-sm font-medium min-h-[100px]" placeholder={`Registrar ${item.label.toLowerCase()}...`} />
@@ -339,14 +340,6 @@ const ReportForm = ({ onBack, onSave }) => {
                                 </label>
                             </div>
                         </section>
-
-                        <div className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-4">
-                            <div className="flex items-center gap-2 text-[var(--color-text-muted)]">
-                                <FileEdit className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Novedades / Pendientes</span>
-                            </div>
-                            <textarea name="novedades" value={formData.novedades} onChange={handleInputChange} className="w-full bg-transparent outline-none text-sm font-medium min-h-[100px]" placeholder="Algo más por reportar?" />
-                        </div>
                     </div>
                 )}
 
@@ -357,7 +350,7 @@ const ReportForm = ({ onBack, onSave }) => {
                             type="button"
                             onClick={nextStep}
                             disabled={step === 1 && (!formData.minigranjaId || !formData.categoria || !formData.gps_location)}
-                            className="w-full bg-[var(--color-quoia-primary)] disabled:opacity-30 text-[var(--color-background)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-[var(--color-quoia-primary)]/20 text-xs uppercase tracking-widest"
+                            className="w-full btn-action font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 disabled:opacity-30 text-xs uppercase tracking-widest"
                         >
                             Siguiente Paso <ChevronRight className="w-5 h-5" />
                         </button>
@@ -365,7 +358,7 @@ const ReportForm = ({ onBack, onSave }) => {
                         <button
                             type="submit"
                             disabled={isSaving || formData.fotos.length === 0}
-                            className="w-full bg-[var(--color-quoia-primary)] disabled:opacity-30 text-[var(--color-background)] font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-[var(--color-quoia-primary)]/20 text-xs uppercase tracking-widest"
+                            className="w-full btn-action font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 disabled:opacity-30 text-xs uppercase tracking-widest"
                         >
                             {isSaving ? 'Guardando...' : <><Save className="w-5 h-5" /> Generar Reporte Oficial</>}
                         </button>
