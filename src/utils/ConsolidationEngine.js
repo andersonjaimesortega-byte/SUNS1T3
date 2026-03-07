@@ -50,8 +50,18 @@ export const prepareConsolidatedData = (selectedReports) => {
 
     const firstGPS = selectedReports.find(r => r.data?.gps_location)?.data.gps_location;
 
+    // 3. Date Range and Summary Metrics
+    const sortedDates = selectedReports
+        .map(r => r.date ? new Date(r.date.split('/').reverse().join('-')) : new Date())
+        .sort((a, b) => a - b);
+
+    const startDate = sortedDates[0]?.toLocaleDateString() || 'N/D';
+    const endDate = sortedDates[sortedDates.length - 1]?.toLocaleDateString() || 'N/D';
+    const periodRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+
     return {
         minigranjaId: displayMinigranjaId,
+        periodRange: periodRange,
         categoria: 'RESUMEN EJECUTIVO',
         isConsolidated: true, // Flag to skip resources section in PDF
         personal_solenium: selectedReports.reduce((acc, r) => acc + (parseInt(r.data?.personal_solenium) || 0), 0).toString(),
