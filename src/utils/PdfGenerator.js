@@ -53,6 +53,8 @@ const createPDFBlob = async (formData, user) => {
         // Minimal metadata for consolidated
     }
 
+    cursorY = 65; // Increased padding from header
+
     // --- Helper for Engineering Layout ---
     const checkPageBreak = (neededHeight) => {
         if (cursorY + neededHeight > 280) {
@@ -64,7 +66,7 @@ const createPDFBlob = async (formData, user) => {
     };
 
     // --- BLOCK 1: IDENTIFICACIÓN Y SEGURIDAD ---
-    checkPageBreak(30);
+    checkPageBreak(35);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(...brandBlue);
@@ -76,26 +78,31 @@ const createPDFBlob = async (formData, user) => {
 
     doc.setTextColor(...darkGray);
     doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
 
+    // Label Row 1: Site/Minigranja
+    doc.setFont('helvetica', 'bold');
     const idLabel = formData.isConsolidated ? 'RESUMEN DE SITIOS' : 'ID MINIGRANJA';
     doc.text(`${idLabel}:`, margin, cursorY);
     doc.setFont('helvetica', 'normal');
-    doc.text(formData.minigranjaId || 'N/A', margin + 35, cursorY);
+    const siteText = formData.minigranjaId || 'N/A';
+    const splitSiteText = doc.splitTextToSize(siteText, 140);
+    doc.text(splitSiteText, margin + 35, cursorY);
+    cursorY += (splitSiteText.length * 5) + 2;
 
-    // Semaphore Result
-    const semaphoreValue = formData.isConsolidated ? 'ESTABLE' : (formData.materiales_llegaron ? 'ÓPTIMO' : 'ESTÁNDAR');
+    // Label Row 2: Semaphore (Separate line to avoid overlap)
     doc.setFont('helvetica', 'bold');
-    doc.text('ESTADO DE SEGURIDAD:', margin + 110, cursorY);
+    doc.text('ESTADO DE SEGURIDAD:', margin, cursorY);
+    const semaphoreValue = formData.isConsolidated ? 'ESTABLE' : (formData.materiales_llegaron ? 'ÓPTIMO' : 'ESTÁNDAR');
     doc.setTextColor(...(formData.materiales_llegaron ? brandGreen : brandBlue));
-    doc.text(semaphoreValue, margin + 155, cursorY);
+    doc.text(semaphoreValue, margin + 45, cursorY);
 
-    cursorY += 8;
+    // Label Row 3: Date
+    cursorY += 7;
     doc.setTextColor(...darkGray);
     doc.setFont('helvetica', 'bold');
     doc.text('FECHA DE REPORTE:', margin, cursorY);
     doc.setFont('helvetica', 'normal');
-    doc.text(formData.date || new Date().toLocaleDateString(), margin + 35, cursorY);
+    doc.text(formData.date || new Date().toLocaleDateString(), margin + 45, cursorY);
     cursorY += 12;
 
     // --- BLOCK 2: UBICACIÓN GPS ---
