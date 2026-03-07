@@ -52,20 +52,26 @@ const ReportForm = ({ onBack, onSave }) => {
             const percentageMatch = lowerText.match(/(\d+)\s*(?:%|por ciento)/);
             if (percentageMatch) extracted.avance_porcentaje = `${percentageMatch[1]}%`;
 
+            const markers = 'actividad|reto|pendiente|novedad|leccion|aprendizaje';
+
             if (lowerText.includes('actividad')) {
-                const block = text.split(/actividad/i)[1]?.split(/reto|pendiente|novedad/i)[0];
+                const block = text.split(/actividad/i)[1]?.split(new RegExp(markers.replace('actividad|', ''), 'i'))[0];
                 if (block) extracted.actividades = block.trim().replace(/^[:\s\-]+/, '');
             }
             if (lowerText.includes('reto')) {
-                const block = text.split(/reto/i)[1]?.split(/actividad|pendiente|novedad/i)[0];
+                const block = text.split(/reto/i)[1]?.split(new RegExp(markers.replace('reto|', ''), 'i'))[0];
                 if (block) extracted.retos = block.trim().replace(/^[:\s\-]+/, '');
             }
+            if (lowerText.includes('leccion') || lowerText.includes('aprendizaje')) {
+                const block = text.split(/leccion|aprendizaje/i)[1]?.split(new RegExp(markers.replace('leccion|aprendizaje|', ''), 'i'))[0];
+                if (block) extracted.lecciones_aprendidas = block.trim().replace(/^[:\s\-]+/, '');
+            }
             if (lowerText.includes('pendiente')) {
-                const block = text.split(/pendiente/i)[1]?.split(/actividad|reto|novedad/i)[0];
+                const block = text.split(/pendiente/i)[1]?.split(new RegExp(markers.replace('pendiente|', ''), 'i'))[0];
                 if (block) extracted.pendientes = block.trim().replace(/^[:\s\-]+/, '');
             }
             if (lowerText.includes('novedad')) {
-                const block = text.split(/novedad/i)[1]?.split(/actividad|reto|pendiente/i)[0];
+                const block = text.split(/novedad/i)[1]?.split(new RegExp(markers.replace('novedad|', ''), 'i'))[0];
                 if (block) extracted.novedades = block.trim().replace(/^[:\s\-]+/, '');
             }
             return extracted;
