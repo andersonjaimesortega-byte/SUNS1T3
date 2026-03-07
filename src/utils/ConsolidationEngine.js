@@ -69,6 +69,7 @@ export const prepareConsolidatedData = (selectedReports) => {
         avance_porcentaje: avgAvance,
         actividades: consolidateText('actividades'),
         retos: consolidateText('retos'),
+        lecciones_aprendidas: consolidateText('lecciones_aprendidas'),
         pendientes: consolidateText('pendientes'),
         novedades: consolidateText('novedades'),
         materiales_llegaron: selectedReports.some(r => r.data?.materiales_llegaron),

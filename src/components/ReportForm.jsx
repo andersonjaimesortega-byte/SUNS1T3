@@ -31,6 +31,7 @@ const ReportForm = ({ onBack, onSave }) => {
         avance_porcentaje: '',
         actividades: '',
         retos: '',
+        lecciones_aprendidas: '',
         pendientes: '',
         novedades: '',
         observaciones_extra: '',
@@ -358,9 +359,10 @@ const ReportForm = ({ onBack, onSave }) => {
                             </div>
 
                             {[
-                                { id: 'actividades', label: 'Actividades', Icon: CheckCircle },
-                                { id: 'retos', label: 'Retos / Soluciones', Icon: AlertCircle },
-                                { id: 'novedades', label: 'Novedades / Clima', Icon: FileEdit }
+                                { id: 'actividades', label: 'Actividades Realizadas', Icon: CheckCircle },
+                                { id: 'retos', label: 'Retos y Obstáculos', Icon: AlertCircle },
+                                { id: 'lecciones_aprendidas', label: 'Lecciones Aprendidas', Icon: CheckCircle },
+                                { id: 'novedades', label: 'Novedades', Icon: FileEdit }
                             ].map(item => (
                                 <div key={item.id} className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-4 shadow-sm relative">
                                     <div className="flex items-center justify-between mb-1">

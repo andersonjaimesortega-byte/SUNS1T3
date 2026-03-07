@@ -29,20 +29,29 @@ export const optimizeText = async (text, fieldType = 'general') => {
 
         case 'retos':
             processed = processed
-                .replace(/(?:pero |sin embargo |el problema fue )/gi, '\n[RETO] ')
-                .replace(/(?:se soluciono |la solucion fue |entonces )/gi, '\n[SOLUCIÓN] ')
+                .replace(/(?:pero |sin embargo |el problema fue |se presento )/gi, '\n• [OBSTÁCULO] ')
                 .split('\n')
                 .filter(line => line.length > 3)
-                .map(line => line.trim())
+                .map(line => line.trim().startsWith('•') ? line : `• ${line}`)
+                .join('\n');
+            break;
+
+        case 'lecciones_aprendidas':
+            processed = processed
+                .replace(/(?:se soluciono |la solucion fue |aprendimos |vimos que )/gi, '\n• [APRENDIZAJE] ')
+                .split('\n')
+                .filter(line => line.length > 3)
+                .map(line => line.trim().startsWith('•') ? line : `• ${line}`)
                 .join('\n');
             break;
 
         case 'novedades':
-            if (processed.toLowerCase().includes('clima') || processed.toLowerCase().includes('lluvia')) {
-                processed = `[CLIMA] ${processed}`;
-            } else {
-                processed = `[LOGÍSTICA] ${processed}`;
-            }
+            processed = processed
+                .replace(/(?:ademas |tambien |por otro lado )/gi, '\n• ')
+                .split('\n')
+                .filter(line => line.length > 2)
+                .map(line => line.trim().startsWith('•') ? line : `• ${line}`)
+                .join('\n');
             break;
 
         default:

@@ -152,8 +152,9 @@ const createPDFBlob = async (formData, user) => {
             highlight: [229, 242, 248]
         },
         { label: 'ACTIVIDADES REALIZADAS:', value: formData.actividades || 'No reportadas.' },
-        { label: 'RETOS Y SOLUCIONES:', value: formData.retos || 'Sin novedades.' },
-        { label: 'NOVEDADES Y CLIMA:', value: formData.novedades || 'Sin novedades.' }
+        { label: 'RETOS Y OBSTÁCULOS:', value: formData.retos || 'Sin novedades.' },
+        { label: 'LECCIONES APRENDIDAS:', value: formData.lecciones_aprendidas || 'Sin novedades.' },
+        { label: 'NOVEDADES:', value: formData.novedades || 'Sin novedades.' }
     ];
 
     sections.forEach(section => {
