@@ -113,7 +113,7 @@ const Dashboard = () => {
             <section className="bg-[var(--color-brand-blue)]/5 border border-[var(--color-brand-blue)]/10 p-8 rounded-[32px] relative overflow-hidden group">
               <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-brand-blue)]/10 rounded-full blur-3xl group-hover:bg-[var(--color-brand-blue)]/20 transition-all duration-700"></div>
               <div className="relative z-10">
-                <h2 className="text-2xl font-black mb-2 flex items-center gap-3 tracking-tight text-[var(--color-brand-blue)]">Bitácora Técnica</h2>
+                <h2 className="text-2xl font-black mb-2 flex items-center gap-3 tracking-tight text-[var(--color-brand-blue)]">Bitácora de Campo</h2>
                 <p className="text-sm text-[var(--color-text-muted)] mb-8 max-w-xs leading-relaxed">Registro oficial de actividades y geolocalización SunSite.</p>
                 <button
                   onClick={() => setViewState('form')}

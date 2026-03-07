@@ -30,7 +30,7 @@ const createPDFBlob = async (formData, user) => {
     doc.text(titleText, margin, 20);
 
     doc.setFontSize(10);
-    doc.text('BITÁCORA TÉCNICA • SOLENIUM', margin, 28);
+    doc.text('BITÁCORA DE CAMPO • SOLENIUM', margin, 28);
 
     doc.setFont('helvetica', 'normal');
     if (formData.isConsolidated) {
