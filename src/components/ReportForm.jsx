@@ -5,6 +5,7 @@ import {
     ChevronRight, ChevronLeft, Layout
 } from 'lucide-react';
 import { compressImage, fileToBase64 } from '../utils/ImageHandler';
+import { optimizeText } from '../utils/AiProcessor';
 
 const CATEGORIES = [
     'Adecuación de terreno y vía de acceso',
@@ -39,6 +40,8 @@ const ReportForm = ({ onBack, onSave }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [activeVoiceField, setActiveVoiceField] = useState(null);
     const [gpsStatus, setGpsStatus] = useState('loading');
+    const [aiProcessingField, setAiProcessingField] = useState(null);
+    const [pendingAiDiff, setPendingAiDiff] = useState(null); // { field, original, optimized }
 
     // Intelligent Text Parser
     const processSmartDictation = (text) => {
@@ -147,17 +150,49 @@ const ReportForm = ({ onBack, onSave }) => {
         }
     };
 
-    const startSmartVoiceCapture = () => {
+    const startVoiceCapture = (targetField = 'smart') => {
         if (!('webkitSpeechRecognition' in window)) {
             alert('Dictado no soportado.');
             return;
         }
         const recognition = new window.webkitSpeechRecognition();
         recognition.lang = 'es-ES';
-        recognition.onstart = () => setActiveVoiceField('smart');
+        recognition.onstart = () => setActiveVoiceField(targetField);
         recognition.onend = () => setActiveVoiceField(null);
-        recognition.onresult = (e) => processSmartDictation(e.results[0][0].transcript);
+        recognition.onresult = async (e) => {
+            const transcript = e.results[0][0].transcript;
+            if (targetField === 'smart') {
+                processSmartDictation(transcript);
+            } else {
+                setAiProcessingField(targetField);
+                try {
+                    const optimized = await optimizeText(transcript, targetField);
+                    setPendingAiDiff({
+                        field: targetField,
+                        original: transcript,
+                        optimized: optimized
+                    });
+                } catch (error) {
+                    console.error('AI Processing Error:', error);
+                    setFormData(prev => ({ ...prev, [targetField]: transcript }));
+                } finally {
+                    setAiProcessingField(null);
+                }
+            }
+        };
         recognition.start();
+    };
+
+    const applyAiOptimization = () => {
+        if (!pendingAiDiff) return;
+        setFormData(prev => ({ ...prev, [pendingAiDiff.field]: pendingAiDiff.optimized }));
+        setPendingAiDiff(null);
+    };
+
+    const discardAiOptimization = () => {
+        if (!pendingAiDiff) return;
+        setFormData(prev => ({ ...prev, [pendingAiDiff.field]: pendingAiDiff.original }));
+        setPendingAiDiff(null);
     };
 
     const nextStep = () => setStep(s => Math.min(s + 1, 4));
@@ -217,7 +252,7 @@ const ReportForm = ({ onBack, onSave }) => {
 
             {renderStepIndicator()}
 
-            <form onSubmit={handleSubmit} className="p-5 space-y-8 max-w-xl mx-auto mt-4">
+            <form onSubmit={handleSubmit} className={`p-5 space-y-8 max-w-xl mx-auto mt-4 ${step === 3 ? 'form-container-with-padding' : ''}`}>
 
                 {/* STEP 1: Identification & GPS */}
                 {step === 1 && (
@@ -297,11 +332,11 @@ const ReportForm = ({ onBack, onSave }) => {
                 {/* STEP 3: Progress & AI */}
                 {step === 3 && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                        <div className="p-10 bg-[var(--color-brand-blue)]/5 border-2 border-dashed border-[var(--color-brand-blue)]/20 rounded-[48px] text-center shadow-inner relative overflow-hidden group">
+                        <div className="p-10 bg-[var(--color-brand-blue)]/5 border-2 border-dashed border-[var(--color-brand-blue)]/20 rounded-[48px] text-center shadow-inner relative overflow-hidden group mb-10">
                             <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
                             <button
                                 type="button"
-                                onClick={startSmartVoiceCapture}
+                                onClick={() => startVoiceCapture('smart')}
                                 className={`w-24 h-24 rounded-full flex items-center justify-center transition-all mx-auto relative z-10 ${activeVoiceField === 'smart' ? 'bg-[#ef4444] text-white animate-pulse-soundwave' : 'btn-nav hover:scale-105 active:scale-95'}`}
                             >
                                 <Mic className={`w-12 h-12 ${activeVoiceField === 'smart' ? 'animate-bounce' : ''}`} />
@@ -327,10 +362,20 @@ const ReportForm = ({ onBack, onSave }) => {
                                 { id: 'retos', label: 'Retos / Soluciones', Icon: AlertCircle },
                                 { id: 'novedades', label: 'Novedades / Clima', Icon: FileEdit }
                             ].map(item => (
-                                <div key={item.id} className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-4 shadow-sm">
-                                    <div className="flex items-center gap-2 text-[var(--color-text-muted)] mb-1">
-                                        <item.Icon className="w-4 h-4 text-[var(--color-brand-blue)]" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+                                <div key={item.id} className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-4 shadow-sm relative">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <div className="flex items-center gap-2 text-[var(--color-text-muted)]">
+                                            <item.Icon className="w-4 h-4 text-[var(--color-brand-blue)]" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+                                            {aiProcessingField === item.id && <span className="spinner-mini ml-2"></span>}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => startVoiceCapture(item.id)}
+                                            className={`p-2 rounded-lg transition-all ${activeVoiceField === item.id ? 'bg-red-500 text-white animate-pulse' : 'text-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)]/10'}`}
+                                        >
+                                            <Mic className="w-4 h-4" />
+                                        </button>
                                     </div>
                                     <textarea name={item.id} value={formData[item.id]} onChange={handleInputChange} className="w-full bg-transparent outline-none text-sm font-medium min-h-[100px]" placeholder={`Registrar ${item.label.toLowerCase()}...`} />
                                 </div>
@@ -391,6 +436,67 @@ const ReportForm = ({ onBack, onSave }) => {
                     )}
                 </div>
             </form>
+
+            {/* Floating Dictation Button (Step 3) */}
+            {step === 3 && (
+                <button
+                    type="button"
+                    onClick={() => startVoiceCapture('smart')}
+                    className={`btn-floating-dictation ${activeVoiceField ? 'recording' : ''}`}
+                    title="Dictado Inteligente"
+                >
+                    <Mic className={`w-8 h-8 ${activeVoiceField ? 'animate-pulse' : ''}`} />
+                </button>
+            )}
+
+            {/* AI Review Modal */}
+            {pendingAiDiff && (
+                <div className="fixed inset-0 z-[100] flex items-end justify-center p-4 sm:items-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-[var(--color-card)] w-full max-w-lg rounded-[40px] p-8 shadow-2xl border border-white/20 animate-in slide-in-from-bottom-10 duration-500">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-12 h-12 bg-[var(--color-brand-green)]/10 rounded-2xl flex items-center justify-center text-[var(--color-brand-green)]">
+                                <FileEdit className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-black uppercase tracking-widest">Optimización IA</h3>
+                                <p className="text-[10px] text-[var(--color-text-muted)] font-bold uppercase">Campo: {pendingAiDiff.field}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-widest ml-1">Original (Dictado)</label>
+                                <div className="p-4 bg-[var(--color-background)] rounded-2xl text-xs text-[var(--color-text-muted)] italic border border-[var(--color-border)]">
+                                    "{pendingAiDiff.original}"
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-[var(--color-brand-green)] uppercase tracking-widest ml-1">Optimizado por SunSite IA</label>
+                                <div className="p-5 bg-[var(--color-brand-green)]/5 rounded-2xl text-sm font-medium border border-[var(--color-brand-green)]/20 text-[var(--color-text)] leading-relaxed">
+                                    {pendingAiDiff.optimized}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 mt-10">
+                            <button
+                                onClick={discardAiOptimization}
+                                className="flex-1 py-4.5 rounded-2xl border border-[var(--color-border)] text-[var(--color-text-muted)] font-black uppercase text-[10px] tracking-widest hover:bg-[var(--color-error)]/5 hover:text-[var(--color-error)] transition-all active:scale-95"
+                            >
+                                Descartar
+                            </button>
+                            <button
+                                onClick={applyAiOptimization}
+                                className="flex-[2] btn-action text-white font-black py-4.5 rounded-2xl flex items-center justify-center gap-2 text-xs uppercase tracking-widest shadow-xl active:scale-95"
+                            >
+                                <CheckCircle className="w-5 h-5" />
+                                Aplicar Mejora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

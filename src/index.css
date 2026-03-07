@@ -91,7 +91,58 @@ body {
   animation: pulse-soundwave 1.5s infinite;
 }
 
-/* Ensure accessible touch targets */
+/* Floating Dictation Button */
+.btn-floating-dictation {
+  position: fixed;
+  bottom: 100px;
+  /* Above nav footer */
+  right: 25px;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--color-brand-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 30px rgba(29, 153, 204, 0.4), inset 0 -4px 0 rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 4px solid white;
+}
+
+.btn-floating-dictation:active {
+  transform: scale(0.9);
+}
+
+.btn-floating-dictation.recording {
+  background: #ef4444;
+  /* Red for recording */
+  box-shadow: 0 0 0 10px rgba(239, 68, 68, 0.15);
+}
+
+/* Field Loading Spinner */
+.spinner-mini {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-brand-green);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Form Spacing for Floating Button */
+.form-container-with-padding {
+  padding-bottom: 120px !important;
+}
+
 /* Base Styles */
 button,
 input,
