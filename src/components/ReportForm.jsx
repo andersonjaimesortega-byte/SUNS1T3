@@ -46,34 +46,52 @@ const ReportForm = ({ onBack, onSave }) => {
 
     // Intelligent Text Parser
     const processSmartDictation = (text) => {
-        const lowerText = text.toLowerCase();
+        let remainingText = text;
+
         setFormData(prev => {
             const extracted = { ...prev };
-            const percentageMatch = lowerText.match(/(\d+)\s*(?:%|por ciento)/);
-            if (percentageMatch) extracted.avance_porcentaje = `${percentageMatch[1]}%`;
 
-            const markers = 'actividad|reto|pendiente|novedad|leccion|aprendizaje';
+            // 1. Percentage Parsing & Consumption
+            const percentageRegex = /(?:avance|progreso|obra|total|general|realizado|al)\s*(\d+)\s*(?:%|por ciento)?|(\d+)\s*(?:%|por ciento)/i;
+            const percentageMatch = remainingText.match(percentageRegex);
 
-            if (lowerText.includes('actividad')) {
-                const block = text.split(/actividad/i)[1]?.split(new RegExp(markers.replace('actividad|', ''), 'i'))[0];
-                if (block) extracted.actividades = block.trim().replace(/^[:\s\-]+/, '');
+            if (percentageMatch) {
+                const val = percentageMatch[1] || percentageMatch[2];
+                extracted.avance_porcentaje = `${val}%`;
+                // Remove the match to avoid confusing it with section keywords
+                remainingText = remainingText.replace(percentageMatch[0], '');
             }
-            if (lowerText.includes('reto')) {
-                const block = text.split(/reto/i)[1]?.split(new RegExp(markers.replace('reto|', ''), 'i'))[0];
-                if (block) extracted.retos = block.trim().replace(/^[:\s\-]+/, '');
+
+            // 2. Section Parsing (Chunk-based)
+            const sections = [
+                { key: 'actividades', keywords: ['actividades', 'actividad', 'labores', 'tareas', 'avances', 'progreso', 'hecho', 'hicimos', 'desarrollo', 'trabajo', 'trabajos', 'ejecución'] },
+                { key: 'retos', keywords: ['obstáculos', 'obstáculo', 'limitantes', 'limitante', 'dificultades', 'dificultad', 'impedimento', 'problemas', 'problema', 'desviación', 'error', 'falla', 'retos', 'reto'] },
+                { key: 'lecciones_aprendidas', keywords: ['lecciones aprendidas', 'lección aprendida', 'lecciones', 'lección', 'aprendizajes', 'aprendizaje', 'aprendido', 'aprendimos', 'solucionado', 'solución', 'conclusiones', 'conclusión', 'mejoras', 'mejora', 'enseñanza'] },
+                { key: 'pendientes', keywords: ['por hacer', 'pendientes', 'pendiente', 'faltantes', 'faltante', 'restantes', 'restante', 'próximo', 'mañana', 'seguimiento'] },
+                { key: 'novedades', keywords: ['observaciones', 'observación', 'comentarios', 'comentario', 'novedades', 'novedad', 'noticias', 'noticia', 'clima', 'extra', 'notas', 'nota'] }
+            ];
+
+            // Sort keywords by length descending to match longer phrases first
+            const allKeywords = sections
+                .flatMap(s => s.keywords)
+                .sort((a, b) => b.length - a.length)
+                .join('|');
+
+            const parts = remainingText.split(new RegExp(`\\b(${allKeywords})\\b`, 'i'));
+
+            // The split result is [unmarked_text, keyword, marked_text, keyword, marked_text, ...]
+            for (let i = 1; i < parts.length; i += 2) {
+                const keyword = parts[i].toLowerCase();
+                const content = parts[i + 1]?.trim().replace(/^[:\s\-]+/, '');
+
+                if (content) {
+                    const section = sections.find(s => s.keywords.includes(keyword));
+                    if (section) {
+                        extracted[section.key] = content;
+                    }
+                }
             }
-            if (lowerText.includes('leccion') || lowerText.includes('aprendizaje')) {
-                const block = text.split(/leccion|aprendizaje/i)[1]?.split(new RegExp(markers.replace('leccion|aprendizaje|', ''), 'i'))[0];
-                if (block) extracted.lecciones_aprendidas = block.trim().replace(/^[:\s\-]+/, '');
-            }
-            if (lowerText.includes('pendiente')) {
-                const block = text.split(/pendiente/i)[1]?.split(new RegExp(markers.replace('pendiente|', ''), 'i'))[0];
-                if (block) extracted.pendientes = block.trim().replace(/^[:\s\-]+/, '');
-            }
-            if (lowerText.includes('novedad')) {
-                const block = text.split(/novedad/i)[1]?.split(new RegExp(markers.replace('novedad|', ''), 'i'))[0];
-                if (block) extracted.novedades = block.trim().replace(/^[:\s\-]+/, '');
-            }
+
             return extracted;
         });
     };
