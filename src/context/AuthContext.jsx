@@ -40,9 +40,11 @@ export const AuthProvider = ({ children }) => {
         const initAuth = async () => {
             const savedUser = localStorage.getItem('minigranja_user');
             if (savedUser) {
-                setUser(JSON.parse(savedUser));
+                const parsed = JSON.parse(savedUser);
+                console.log('Found saved user:', parsed);
+                setUser(parsed);
             }
-            await syncUsers();
+            await syncUsers(); // Forces a refresh of the users list on load
             setLoading(false);
         };
 
@@ -72,33 +74,52 @@ export const AuthProvider = ({ children }) => {
     const login = (userId) => {
         const cleanId = userId.trim().toUpperCase();
         console.log('Attempting login with ID:', cleanId);
-        console.log('Available users in current list:', usersList.map(u => u.id));
 
-        const foundUser = usersList.find(u => u.id === cleanId);
+        // Debugging: What does our user list actually look like right now?
+        console.log('Total users in list:', usersList.length);
+        const mappedIds = usersList.map(u => u.id);
+        console.log('Available IDs:', mappedIds);
+
+        // Intenta buscar en Supabase list primero, si no, busca directo en localUsers como fallback radical
+        let foundUser = usersList.find(u => u.id === cleanId);
+        let source = 'Supabase/Cache';
+
+        if (!foundUser) {
+            console.warn(`ID ${cleanId} not found in usersList. Checking local JSON fallback manually...`);
+            foundUser = localUsers.find(u => u.id === cleanId);
+            if (foundUser) {
+                source = 'Local JSON Override';
+                console.log('User found in local JSON fallback.');
+            }
+        }
 
         if (foundUser) {
-            console.log('Login successful for:', foundUser.nombre);
+            console.log(`Login successful for: ${foundUser.nombre} (Source: ${source})`);
 
-            // Ensure rol_sistema exists if we fetched from Supabase but it's missing the column
             let finalUser = { ...foundUser };
+            // Asegurarse de que rol_sistema exista.
             if (!finalUser.rol_sistema) {
                 const localMatch = localUsers.find(u => u.id === cleanId);
                 if (localMatch && localMatch.rol_sistema) {
                     finalUser.rol_sistema = localMatch.rol_sistema;
                     console.log('Merged local role:', finalUser.rol_sistema);
                 } else {
-                    finalUser.rol_sistema = 'residente'; // Default fallback
+                    finalUser.rol_sistema = 'residente';
                     console.log('Applied default role: residente');
                 }
+            } else {
+                console.log('Role from DB exists:', finalUser.rol_sistema);
             }
 
+            console.log('Setting final user state:', finalUser);
             setUser(finalUser);
             localStorage.setItem('minigranja_user', JSON.stringify(finalUser));
             localStorage.setItem('sunsite_user', JSON.stringify(finalUser));
             return { success: true };
         }
-        console.warn('Login failed: ID not found in current list');
-        return { success: false, message: 'ID de usuario no válido' };
+
+        console.warn(`Login failed: ID ${cleanId} not found anywhere.`);
+        return { success: false, message: 'ID de usuario no registrado en el sistema.' };
     };
 
     const updateUserName = (newName) => {
