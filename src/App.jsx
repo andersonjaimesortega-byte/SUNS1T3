@@ -256,7 +256,7 @@ const AppContent = () => {
     <Routes>
       <Route path="/" element={<Layout><Dashboard /></Layout>} />
       <Route path="/obra" element={<Layout><ReportForm onBack={() => navigate('/')} onSave={handleSaveReport} /></Layout>} />
-      <Route path="/visita" element={<Layout><VisitaFormPlaceholder /></Layout>} />
+      <Route path="/visita" element={<Layout><VisitaForm onBack={() => navigate('/')} onSave={handleSaveReport} /></Layout>} />
       <Route path="/history" element={<Layout><HistoryView onBack={() => navigate('/')} user={user} /></Layout>} />
       <Route path="/settings" element={<Layout><SettingsView onBack={() => navigate('/')} /></Layout>} />
       <Route path="/success" element={<Layout><SuccessView lastReport={lastReport} /></Layout>} />
