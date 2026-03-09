@@ -36,6 +36,11 @@ const Dashboard = () => {
       <section className="bg-[var(--color-brand-blue)]/5 border border-[var(--color-brand-blue)]/10 p-8 rounded-[32px] relative overflow-hidden group">
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-brand-blue)]/10 rounded-full blur-3xl group-hover:bg-[var(--color-brand-blue)]/20 transition-all duration-700"></div>
         <div className="relative z-10">
+          <div className="mb-4">
+            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${user?.rol_sistema === 'visitador' ? 'bg-[var(--color-brand-green)]/10 text-[var(--color-brand-green)] border-[var(--color-brand-green)]/20' : 'bg-[var(--color-brand-blue)]/10 text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20'}`}>
+              Perfil Activo: {user?.rol_sistema || 'residente'}
+            </span>
+          </div>
           <h2 className="text-2xl font-black mb-2 flex items-center gap-3 tracking-tight text-[var(--color-brand-blue)]">
             {user?.rol_sistema === 'visitador' ? 'Visita Técnica' : 'Bitácora de Campo'}
           </h2>
@@ -127,7 +132,7 @@ const Layout = ({ children }) => {
             </div>
             <div>
               <h1 className="text-lg font-black tracking-tighter text-[var(--color-quoia-primary)] uppercase">SunSite</h1>
-              <p className="text-[10px] text-[var(--color-text-muted)] font-medium uppercase tracking-widest">{user?.nombre} • {user?.rol}</p>
+              <p className="text-[10px] text-[var(--color-text-muted)] font-medium uppercase tracking-widest">{user?.nombre} • {user?.rol_sistema}</p>
             </div>
           </div>
           <button
