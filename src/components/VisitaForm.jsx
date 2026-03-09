@@ -1,78 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import {
     Camera, Mic, Save, ArrowLeft, Trash2, CheckCircle,
-    MapPin, AlertCircle, Users, Package, FileEdit, History,
-    ChevronRight, ChevronLeft, Layout
+    MapPin, AlertCircle, FileEdit, ChevronRight
 } from 'lucide-react';
 import { compressImage, fileToBase64 } from '../utils/ImageHandler';
 import { optimizeText } from '../utils/AiProcessor';
 import FloatingDictationButton from './FloatingDictationButton';
 
-const CATEGORIES = [
-    'Adecuación de terreno y vía de acceso',
-    'Cerramiento perimetral',
-    'Registros y zanjas',
-    'Cimentaciones',
-    'Obra Civil MT',
-    'Hincado y Montaje de Estructura',
-    'Obras finales y puesta en marcha'
-];
-
-const ReportForm = ({ onBack, onSave }) => {
-    console.log('ReportForm: Initializing Wizard...');
+const VisitaForm = ({ onBack, onSave }) => {
+    console.log('VisitaForm: Initializing Wizard...');
 
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
-        minigranjaId: '',
-        categoria: '',
-        personal_solenium: '',
-        personal_contratista: '',
-        materiales_llegaron: false,
-        materiales_detalle: '',
-        avance_porcentaje: '',
-        actividades: '',
-        retos: '',
-        lecciones_aprendidas: '',
-        pendientes: '',
-        novedades: '',
-        observaciones_extra: '',
+        // Datos del Predio
+        nombrePredio: '',
+        gps_location: null,
+        // Estado de Accesos
+        estadoVias: '',
+        estadoCercado: '',
+        // Observaciones Técnicas
+        observaciones_tecnicas: '',
+        // Registro Fotográfico
         fotos: [],
-        gps_location: null
+        tipoReporte: 'visita' // flag to distinguish later
     });
+
     const [isSaving, setIsSaving] = useState(false);
     const [activeVoiceField, setActiveVoiceField] = useState(null);
     const [gpsStatus, setGpsStatus] = useState('loading');
     const [aiProcessingField, setAiProcessingField] = useState(null);
-    const [pendingAiDiff, setPendingAiDiff] = useState(null); // { field, original, optimized }
+    const [pendingAiDiff, setPendingAiDiff] = useState(null);
 
-    // Intelligent Text Parser
+    // Intelligent Text Parser for Visita
     const processSmartDictation = (text) => {
         let remainingText = text;
 
         setFormData(prev => {
             const extracted = { ...prev };
 
-            // 1. Percentage Parsing & Consumption
-            const percentageRegex = /(?:avance|progreso|obra|total|general|realizado|al)\s*(\d+)\s*(?:%|por ciento)?|(\d+)\s*(?:%|por ciento)/i;
-            const percentageMatch = remainingText.match(percentageRegex);
-
-            if (percentageMatch) {
-                const val = percentageMatch[1] || percentageMatch[2];
-                extracted.avance_porcentaje = `${val}%`;
-                // Remove the match to avoid confusing it with section keywords
-                remainingText = remainingText.replace(percentageMatch[0], '');
-            }
-
-            // 2. Section Parsing (Chunk-based)
             const sections = [
-                { key: 'actividades', keywords: ['actividades', 'actividad', 'labores', 'tareas', 'avances', 'progreso', 'hecho', 'hicimos', 'desarrollo', 'trabajo', 'trabajos', 'ejecución'] },
-                { key: 'retos', keywords: ['obstáculos', 'obstáculo', 'limitantes', 'limitante', 'dificultades', 'dificultad', 'impedimento', 'problemas', 'problema', 'desviación', 'error', 'falla', 'retos', 'reto'] },
-                { key: 'lecciones_aprendidas', keywords: ['lecciones aprendidas', 'lección aprendida', 'lecciones', 'lección', 'aprendizajes', 'aprendizaje', 'aprendido', 'aprendimos', 'solucionado', 'solución', 'conclusiones', 'conclusión', 'mejoras', 'mejora', 'enseñanza'] },
-                { key: 'pendientes', keywords: ['por hacer', 'pendientes', 'pendiente', 'faltantes', 'faltante', 'restantes', 'restante', 'próximo', 'mañana', 'seguimiento'] },
-                { key: 'novedades', keywords: ['observaciones', 'observación', 'comentarios', 'comentario', 'novedades', 'novedad', 'noticias', 'noticia', 'clima', 'extra', 'notas', 'nota'] }
+                { key: 'estadoVias', keywords: ['vías', 'vía', 'acceso', 'carretera', 'camino'] },
+                { key: 'estadoCercado', keywords: ['cercado', 'cerco', 'alambrado', 'perímetro', 'lindero'] },
+                { key: 'observaciones_tecnicas', keywords: ['observaciones', 'observación', 'técnico', 'notas', 'nota', 'detalles'] }
             ];
 
-            // Sort keywords by length descending to match longer phrases first
             const allKeywords = sections
                 .flatMap(s => s.keywords)
                 .sort((a, b) => b.length - a.length)
@@ -80,7 +51,6 @@ const ReportForm = ({ onBack, onSave }) => {
 
             const parts = remainingText.split(new RegExp(`\\b(${allKeywords})\\b`, 'i'));
 
-            // The split result is [unmarked_text, keyword, marked_text, keyword, marked_text, ...]
             for (let i = 1; i < parts.length; i += 2) {
                 const keyword = parts[i].toLowerCase();
                 const content = parts[i + 1]?.trim().replace(/^[:\s\-]+/, '');
@@ -93,21 +63,15 @@ const ReportForm = ({ onBack, onSave }) => {
                 }
             }
 
+            // If it didn't strictly match a section, but we are dictating globally,
+            // we could dump the rest into observaciones_tecnicas
+            if (parts.length === 1 && parts[0].trim()) {
+                extracted.observaciones_tecnicas = (extracted.observaciones_tecnicas ? extracted.observaciones_tecnicas + ' ' : '') + parts[0].trim();
+            }
+
             return extracted;
         });
     };
-
-    useEffect(() => {
-        try {
-            const draft = localStorage.getItem('report_draft');
-            if (draft) {
-                const parsedDraft = JSON.parse(draft);
-                if (parsedDraft && typeof parsedDraft === 'object') {
-                    setFormData(prev => ({ ...prev, ...parsedDraft }));
-                }
-            }
-        } catch (e) { console.error('Error loading draft', e); }
-    }, []);
 
     useEffect(() => {
         if (!navigator.geolocation) {
@@ -130,12 +94,6 @@ const ReportForm = ({ onBack, onSave }) => {
             { enableHighAccuracy: true, timeout: 10000 }
         );
     }, []);
-
-    useEffect(() => {
-        try {
-            localStorage.setItem('report_draft', JSON.stringify(formData));
-        } catch (e) { console.error('Error saving draft', e); }
-    }, [formData]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -162,15 +120,14 @@ const ReportForm = ({ onBack, onSave }) => {
         }
         setIsSaving(true);
         try {
-            await onSave(formData);
-            localStorage.removeItem('reportFormDraft'); // New line as per instruction
-            localStorage.removeItem('report_draft'); // Remove the draft on successful save
+            await onSave({
+                // Map properties to common structure or keep specific
+                // minigranjaId works as the primary id for reports in App.jsx
+                minigranjaId: formData.nombrePredio,
+                ...formData
+            });
         } catch (error) {
             console.error('Error saving report:', error);
-            // If onSave fails, we might want to keep the draft or handle it differently
-            // The instruction implies moving report_draft removal to catch, but it's more logical to remove it on success.
-            // For now, following the instruction's implied structure for 'report_draft' removal on error.
-            localStorage.removeItem('report_draft'); // As per instruction's snippet, remove on error too.
         } finally {
             setIsSaving(false);
         }
@@ -221,15 +178,14 @@ const ReportForm = ({ onBack, onSave }) => {
         setPendingAiDiff(null);
     };
 
-    const nextStep = () => setStep(s => Math.min(s + 1, 4));
+    const nextStep = () => setStep(s => Math.min(s + 1, 3));
     const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
     const renderStepIndicator = () => {
         const steps = [
-            { id: 1, label: 'Acceso' },
-            { id: 2, label: 'Categoría' },
-            { id: 3, label: 'Progreso' },
-            { id: 4, label: 'Fotos' }
+            { id: 1, label: 'Predio' },
+            { id: 2, label: 'Inspección' },
+            { id: 3, label: 'Fotos' }
         ];
 
         return (
@@ -268,17 +224,14 @@ const ReportForm = ({ onBack, onSave }) => {
                 <div>
                     <h1 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--color-quoia-primary)]">SunSite Wizard</h1>
                     <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-0.5">
-                        {step === 1 && 'Identificación'}
-                        {step === 2 && 'Recursos'}
-                        {step === 3 && 'Progreso'}
-                        {step === 4 && 'Cierre'}
+                        Visita de Terreno
                     </p>
                 </div>
             </header>
 
             {renderStepIndicator()}
 
-            <form onSubmit={handleSubmit} className={`p-5 space-y-8 max-w-xl mx-auto mt-4 ${step === 3 ? 'form-container-with-padding' : ''}`}>
+            <form onSubmit={handleSubmit} className={`p-5 space-y-8 max-w-xl mx-auto mt-4 ${step === 2 ? 'form-container-with-padding' : ''}`}>
 
                 {/* STEP 1: Identification & GPS */}
                 {step === 1 && (
@@ -288,106 +241,37 @@ const ReportForm = ({ onBack, onSave }) => {
                             <div>
                                 <h3 className="text-xs font-black uppercase tracking-wider">Ubicación GPS</h3>
                                 <p className="text-[10px] opacity-70">
-                                    {gpsStatus === 'success' ? `${formData.gps_location?.lat.toFixed(4)}, ${formData.gps_location?.lng.toFixed(4)}` : 'Activación Obligatoria'}
+                                    {gpsStatus === 'success' ? `${formData.gps_location?.lat.toFixed(4)}, ${formData.gps_location?.lng.toFixed(4)}` : 'Activación Obligatoria para Visita'}
                                 </p>
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div className="group">
-                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-2 block ml-1">ID Minigranja</label>
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-2 block ml-1">Nombre del Predio</label>
                                 <input
                                     type="text"
-                                    name="minigranjaId"
-                                    value={formData.minigranjaId}
+                                    name="nombrePredio"
+                                    value={formData.nombrePredio}
                                     onChange={handleInputChange}
-                                    placeholder="MG-XXX"
+                                    placeholder="Ej: Finca Las Brisas"
                                     className="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl px-5 py-4 outline-none focus:ring-4 focus:ring-[var(--color-quoia-primary)]/10 focus:border-[var(--color-quoia-primary)] transition-all font-bold tracking-tight"
+                                    required
                                 />
                             </div>
-                            <div className="group">
-                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-2 block ml-1">Frente de Obra / Categoría</label>
-                                <select
-                                    name="categoria"
-                                    value={formData.categoria}
-                                    onChange={handleInputChange}
-                                    className="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl px-5 py-4 outline-none focus:ring-4 focus:ring-[var(--color-quoia-primary)]/10 focus:border-[var(--color-quoia-primary)] transition-all appearance-none cursor-pointer font-bold"
-                                >
-                                    <option value="">Seleccionar...</option>
-                                    {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                                </select>
-                            </div>
                         </div>
                     </div>
                 )}
 
-                {/* STEP 2: Resources */}
+                {/* STEP 2: Inspección (Accesos y Observaciones con IA) */}
                 {step === 2 && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                        <section className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-6">
-                            <div className="flex items-center gap-3 mb-2">
-                                <Users className="text-[var(--color-quoia-primary)] w-5 h-5" />
-                                <h2 className="text-xs font-black uppercase tracking-widest">Personal en Sitio</h2>
-                            </div>
-                            <div className="grid grid-cols-2 gap-5">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-[var(--color-text-muted)] ml-1 uppercase">Solenium</label>
-                                    <input type="number" name="personal_solenium" value={formData.personal_solenium} onChange={handleInputChange} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl px-4 py-3.5 focus:border-[var(--color-quoia-primary)] outline-none" placeholder="0" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-[var(--color-text-muted)] ml-1 uppercase">Contratista</label>
-                                    <input type="number" name="personal_contratista" value={formData.personal_contratista} onChange={handleInputChange} className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl px-4 py-3.5 focus:border-[var(--color-quoia-primary)] outline-none" placeholder="0" />
-                                </div>
-                            </div>
-                        </section>
-
-                        <section className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-5">
-                            <div className="flex items-center gap-4">
-                                <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer ${formData.materiales_llegaron ? 'bg-[var(--color-quoia-primary)] border-[var(--color-quoia-primary)]' : 'border-[var(--color-border)]'}`} onClick={() => setFormData(p => ({ ...p, materiales_llegaron: !p.materiales_llegaron }))}>
-                                    {formData.materiales_llegaron && <CheckCircle className="text-[var(--color-background)] w-4 h-4" />}
-                                </div>
-                                <span className="text-sm font-bold">¿Llegó material o equipos hoy?</span>
-                            </div>
-                            {formData.materiales_llegaron && (
-                                <textarea name="materiales_detalle" value={formData.materiales_detalle} onChange={handleInputChange} placeholder="Detalle: Tubos, cables, paneles..." className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl p-4 text-sm min-h-[100px] outline-none focus:border-[var(--color-quoia-primary)]" />
-                            )}
-                        </section>
-                    </div>
-                )}
-
-                {/* STEP 3: Progress & AI */}
-                {step === 3 && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                        <div className="p-10 bg-[var(--color-brand-blue)]/5 border-2 border-dashed border-[var(--color-brand-blue)]/20 rounded-[48px] text-center shadow-inner relative overflow-hidden group mb-10">
-                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
-                            <button
-                                type="button"
-                                onClick={() => startVoiceCapture('smart')}
-                                className={`w-24 h-24 rounded-full flex items-center justify-center transition-all mx-auto relative z-10 ${activeVoiceField === 'smart' ? 'bg-[#ef4444] text-white animate-pulse-soundwave' : 'btn-nav hover:scale-105 active:scale-95'}`}
-                            >
-                                <Mic className={`w-12 h-12 ${activeVoiceField === 'smart' ? 'animate-bounce' : ''}`} />
-                            </button>
-                            <div className="mt-6 space-y-1 relative z-10">
-                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-[var(--color-brand-blue)]">
-                                    {activeVoiceField === 'smart' ? 'Grabación en curso' : 'Dictado Inteligente'}
-                                </h3>
-                                <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest opacity-60">
-                                    {activeVoiceField === 'smart' ? 'El sistema procesa tu voz en tiempo real' : 'Pulsa el botón para dictar reporte completo'}
-                                </p>
-                            </div>
-                        </div>
 
                         <div className="grid grid-cols-1 gap-6">
-                            <div className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px]">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)] block mb-3">% Avance Realizado</label>
-                                <input type="text" name="avance_porcentaje" value={formData.avance_porcentaje} onChange={handleInputChange} className="text-4xl font-black bg-transparent w-full text-[var(--color-quoia-primary)] outline-none" placeholder="0%" />
-                            </div>
-
                             {[
-                                { id: 'actividades', label: 'Actividades Realizadas', Icon: CheckCircle },
-                                { id: 'retos', label: 'Retos y Obstáculos', Icon: AlertCircle },
-                                { id: 'lecciones_aprendidas', label: 'Lecciones Aprendidas', Icon: CheckCircle },
-                                { id: 'novedades', label: 'Novedades', Icon: FileEdit }
+                                { id: 'estadoVias', label: 'Estado de Accesos (Vía)', Icon: MapPin },
+                                { id: 'estadoCercado', label: 'Estado de Cercado / Linderos', Icon: CheckCircle },
+                                { id: 'observaciones_tecnicas', label: 'Observaciones Técnicas', Icon: FileEdit }
                             ].map(item => (
                                 <div key={item.id} className="bg-[var(--color-card)] border border-[var(--color-border)] p-6 rounded-[32px] space-y-4 shadow-sm relative">
                                     <div className="flex items-center justify-between mb-1">
@@ -404,19 +288,19 @@ const ReportForm = ({ onBack, onSave }) => {
                                             <Mic className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    <textarea name={item.id} value={formData[item.id]} onChange={handleInputChange} className="w-full bg-transparent outline-none text-sm font-medium min-h-[100px]" placeholder={`Registrar ${item.label.toLowerCase()}...`} />
+                                    <textarea name={item.id} value={formData[item.id]} onChange={handleInputChange} className="w-full bg-transparent outline-none text-sm font-medium min-h-[100px]" placeholder={`Registrar detalles de ${item.label.toLowerCase()}...`} />
                                 </div>
                             ))}
                         </div>
                     </div>
                 )}
 
-                {/* STEP 4: Photos & Finish */}
-                {step === 4 && (
+                {/* STEP 3: Photos & Finish */}
+                {step === 3 && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300 px-1">
                         <section className="space-y-6">
                             <div className="flex justify-between items-center">
-                                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--color-text-muted)]">Registro Visual</h2>
+                                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--color-text-muted)]">Registro Fotográfico del Predio</h2>
                                 <span className={`text-[10px] font-black px-3 py-1.5 rounded-full ${formData.fotos.length > 0 ? 'bg-[var(--color-success)]/10 text-[var(--color-success)]' : 'bg-[var(--color-error)]/10 text-[var(--color-error)]'}`}>
                                     {formData.fotos.length} FOTOS
                                 </span>
@@ -443,11 +327,11 @@ const ReportForm = ({ onBack, onSave }) => {
 
                 {/* NAV FOOTER */}
                 <div className="fixed bottom-0 left-0 right-0 p-5 bg-[var(--color-background)]/80 backdrop-blur-2xl border-t border-[var(--color-border)] z-30 flex gap-4 max-w-xl mx-auto">
-                    {step < 4 ? (
+                    {step < 3 ? (
                         <button
                             type="button"
                             onClick={nextStep}
-                            disabled={step === 1 && (!formData.minigranjaId || !formData.categoria || !formData.gps_location)}
+                            disabled={step === 1 && (!formData.nombrePredio || !formData.gps_location)}
                             className="w-full btn-action font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 disabled:opacity-30 text-xs uppercase tracking-widest"
                         >
                             Siguiente Paso <ChevronRight className="w-5 h-5" />
@@ -458,14 +342,14 @@ const ReportForm = ({ onBack, onSave }) => {
                             disabled={isSaving || formData.fotos.length === 0}
                             className="w-full btn-action font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 disabled:opacity-30 text-xs uppercase tracking-widest"
                         >
-                            {isSaving ? 'Guardando...' : <><Save className="w-5 h-5" /> Generar Reporte Oficial</>}
+                            {isSaving ? 'Guardando...' : <><Save className="w-5 h-5" /> Generar Reporte Visita</>}
                         </button>
                     )}
                 </div>
             </form>
 
-            {/* Floating Dictation Button (Step 3) */}
-            {step === 3 && (
+            {/* Floating Dictation Button (Step 2 is Inspección text areas) */}
+            {step === 2 && (
                 <FloatingDictationButton
                     onStartCapture={startVoiceCapture}
                     activeField={activeVoiceField}
@@ -524,4 +408,4 @@ const ReportForm = ({ onBack, onSave }) => {
     );
 };
 
-export default ReportForm;
+export default VisitaForm;

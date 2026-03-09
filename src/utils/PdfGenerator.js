@@ -23,10 +23,16 @@ const createPDFBlob = async (formData, user) => {
 
     // Main Title Logic
     doc.setFontSize(16);
-    const siteRef = formData.minigranjaId || formData.minigranja || 'SITIO';
-    const titleText = formData.isConsolidated
-        ? 'REPORTE CONSOLIDADO DE ACTIVIDADES'
-        : `REPORTE DIARIO: ${siteRef.toUpperCase()}`;
+    const siteRef = formData.minigranjaId || formData.minigranja || formData.nombrePredio || 'SITIO';
+    const isVisita = formData.tipoReporte === 'visita';
+
+    let titleText = `REPORTE DIARIO: ${siteRef.toUpperCase()}`;
+    if (formData.isConsolidated) {
+        titleText = 'REPORTE CONSOLIDADO DE ACTIVIDADES';
+    } else if (isVisita) {
+        titleText = `REPORTE DE VISITA TÉCNICA: ${siteRef.toUpperCase()}`;
+    }
+
     doc.text(titleText, margin, 20);
 
     doc.setFontSize(10);
@@ -38,7 +44,7 @@ const createPDFBlob = async (formData, user) => {
         doc.text(`RESUMEN DE PERÍODO: ${formData.periodRange || 'N/D'}`, margin, 38);
     } else {
         doc.setFontSize(10);
-        const categoryName = formData.categoria || 'Sin Categoría';
+        const categoryName = isVisita ? 'INSPECCIÓN EN CAMPO' : (formData.categoria || 'Sin Categoría');
         doc.text(`CATEGORÍA: ${categoryName.toUpperCase()}`, margin, 38);
     }
 
@@ -92,8 +98,20 @@ const createPDFBlob = async (formData, user) => {
     // Label Row 2: Semaphore
     doc.setFont('helvetica', 'bold');
     doc.text('ESTADO DE SEGURIDAD:', margin, cursorY);
-    const semaphoreValue = formData.isConsolidated ? 'ESTABLE' : (formData.materiales_llegaron ? 'ÓPTIMO' : 'ESTÁNDAR');
-    doc.setTextColor(...(formData.materiales_llegaron ? brandGreen : brandBlue));
+
+    let semaphoreValue = 'ESTÁNDAR';
+    let semaphoreColor = brandBlue;
+    if (formData.isConsolidated) {
+        semaphoreValue = 'ESTABLE';
+    } else if (isVisita) {
+        semaphoreValue = 'INSPECCIÓN';
+        semaphoreColor = brandBlue;
+    } else if (formData.materiales_llegaron) {
+        semaphoreValue = 'ÓPTIMO';
+        semaphoreColor = brandGreen;
+    }
+
+    doc.setTextColor(...semaphoreColor);
     doc.text(semaphoreValue, margin + 48, cursorY);
 
     // Label Row 3: Date
@@ -143,7 +161,11 @@ const createPDFBlob = async (formData, user) => {
     doc.line(margin, cursorY + 2, pageWidth - margin, cursorY + 2);
     cursorY += 12;
 
-    const sections = [
+    const sections = isVisita ? [
+        { label: 'ESTADO DE VÍAS Y ACCESOS:', value: formData.estadoVias || 'No evaluado.' },
+        { label: 'ESTADO DE CERCADO Y LINDEROS:', value: formData.estadoCercado || 'No evaluado.' },
+        { label: 'OBSERVACIONES TÉCNICAS:', value: formData.observaciones_tecnicas || 'Sin observaciones.' }
+    ] : [
         {
             label: 'AVANCE DE OBRA:',
             value: formData.avance_porcentaje
@@ -179,8 +201,8 @@ const createPDFBlob = async (formData, user) => {
         cursorY += (splitText.length * 5) + 12;
     });
 
-    // --- BLOCK 4: RECURSOS Y MATERIALES (SKIP IF CONSOLIDATED) ---
-    if (!formData.isConsolidated) {
+    // --- BLOCK 4: RECURSOS Y MATERIALES (SKIP IF CONSOLIDATED OR VISITA) ---
+    if (!formData.isConsolidated && !isVisita) {
         checkPageBreak(50);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
@@ -304,8 +326,11 @@ const createPDFBlob = async (formData, user) => {
     }
 
     const dateStr = new Date().toISOString().split('T')[0];
-    const prefix = formData.isConsolidated ? 'CONSOLIDADO' : 'DIARIO';
-    const siteFilenameRef = formData.minigranjaId || 'SUNSITE';
+    let prefix = 'DIARIO';
+    if (formData.isConsolidated) prefix = 'CONSOLIDADO';
+    if (isVisita) prefix = 'VISITA';
+
+    const siteFilenameRef = formData.minigranjaId || formData.nombrePredio || 'SUNSITE';
     const filename = `SOLENIUM_${prefix}_${siteFilenameRef.substring(0, 15).replace(/\s+/g, '_')}_${dateStr}.pdf`;
 
     return { doc, filename };
