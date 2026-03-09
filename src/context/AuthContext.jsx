@@ -12,8 +12,7 @@ export const AuthProvider = ({ children }) => {
     const syncUsers = async () => {
         try {
             console.log('Attempting to sync with Supabase (Cache Busted)...');
-            // Adding a timestamp query to bust any aggressive CDN/Browser caching from Supabase REST API
-            const timestamp = new Date().getTime();
+            // Forçamos refresco desde DB eliminando dependencias de caché
             const { data, error } = await supabase
                 .from('users')
                 .select('*')
