@@ -1,0 +1,30 @@
+:root {
+    /* Fonts */
+    --font-primary: 'Poppins', sans-serif;
+
+    /* Corporate Colors - Solenium Scheme */
+    --color-brand-green: #3BB339;
+    --color-brand-blue: #1D99CC;
+
+    --color-quoia-primary: var(--color-brand-green);
+    --color-zentrack-primary: var(--color-brand-blue);
+
+    /* Semantic Colors */
+    --color-background: rgba(29, 153, 204, 0.05);
+    /* Ultra-light Technical Blue */
+    --color-card: #ffffff;
+    --color-border: rgba(29, 153, 204, 0.1);
+    --color-text: #1e293b;
+    /* Slate 800 */
+    --color-text-muted: #64748b;
+    /* Slate 500 */
+
+    /* Action Colors */
+    --color-success: var(--color-brand-green);
+    --color-warning: #f59e0b;
+    /* Amber 500 */
+    --color-error: #ef4444;
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}

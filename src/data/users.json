@@ -1,0 +1,26 @@
+[
+  {
+    "id": "ANDREA",
+    "nombre": "Andrea",
+    "rol": "Ingeniero de Campo",
+    "rol_sistema": "residente"
+  },
+  {
+    "id": "TOBAR",
+    "nombre": "Tobar",
+    "rol": "Técnico de Campo",
+    "rol_sistema": "visitador"
+  },
+  {
+    "id": "JUAN",
+    "nombre": "Juan",
+    "rol": "Ingeniero de Campo",
+    "rol_sistema": "residente"
+  },
+  {
+    "id": "ADMIN",
+    "nombre": "Administrador",
+    "rol": "Admin",
+    "rol_sistema": "admin"
+  }
+]
