@@ -78,9 +78,23 @@ export const AuthProvider = ({ children }) => {
 
         if (foundUser) {
             console.log('Login successful for:', foundUser.nombre);
-            setUser(foundUser);
-            localStorage.setItem('minigranja_user', JSON.stringify(foundUser));
-            localStorage.setItem('sunsite_user', JSON.stringify(foundUser));
+
+            // Ensure rol_sistema exists if we fetched from Supabase but it's missing the column
+            let finalUser = { ...foundUser };
+            if (!finalUser.rol_sistema) {
+                const localMatch = localUsers.find(u => u.id === cleanId);
+                if (localMatch && localMatch.rol_sistema) {
+                    finalUser.rol_sistema = localMatch.rol_sistema;
+                    console.log('Merged local role:', finalUser.rol_sistema);
+                } else {
+                    finalUser.rol_sistema = 'residente'; // Default fallback
+                    console.log('Applied default role: residente');
+                }
+            }
+
+            setUser(finalUser);
+            localStorage.setItem('minigranja_user', JSON.stringify(finalUser));
+            localStorage.setItem('sunsite_user', JSON.stringify(finalUser));
             return { success: true };
         }
         console.warn('Login failed: ID not found in current list');
