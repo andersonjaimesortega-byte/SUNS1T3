@@ -12,15 +12,16 @@ const HistoryView = ({ onBack, user }) => {
     const [selectedIds, setSelectedIds] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadHistory();
-    }, []);
-
     const loadHistory = async () => {
         const data = await getAllReports();
         setReports(data);
         setLoading(false);
     };
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        loadHistory();
+    }, []);
 
     const toggleSelection = (id) => {
         setSelectedIds(prev =>

@@ -11,7 +11,7 @@ import { saveReport, getAllReports } from './utils/StorageManager';
 import { LogOut, ClipboardCheck, PlusCircle, History, Settings, FileText, Share2, Download, ArrowLeft } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [recentReports, setRecentReports] = useState([]);
 

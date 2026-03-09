@@ -53,7 +53,7 @@ const VisitaForm = ({ onBack, onSave }) => {
 
             for (let i = 1; i < parts.length; i += 2) {
                 const keyword = parts[i].toLowerCase();
-                const content = parts[i + 1]?.trim().replace(/^[:\s\-]+/, '');
+                const content = parts[i + 1]?.trim().replace(/^[:\s-]+/, '');
 
                 if (content) {
                     const section = sections.find(s => s.keywords.includes(keyword));

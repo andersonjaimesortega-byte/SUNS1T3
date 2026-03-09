@@ -9,8 +9,6 @@ const createPDFBlob = async (formData, user) => {
     // Corporate Colors - Solenium Scheme
     const brandGreen = [59, 179, 57]; // #3BB339
     const brandBlue = [29, 153, 204];  // #1D99CC
-    const quoiaGreen = brandGreen;
-    const zentrackOrange = brandBlue; // Using brand blue for highlights
     const darkGray = [30, 41, 59];    // Slate 800
     const lightGray = [100, 116, 139]; // Slate 500
 
