@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
-    const login = (userId) => {
+    const login = async (userId) => {
         const cleanId = userId.trim().toUpperCase();
         console.log('Attempting login with ID:', cleanId);
 
@@ -80,9 +80,19 @@ export const AuthProvider = ({ children }) => {
         const mappedIds = usersList.map(u => u.id);
         console.log('Available IDs:', mappedIds);
 
-        // Intenta buscar en Supabase list primero, si no, busca directo en localUsers como fallback radical
+        // Intenta buscar en Supabase list primero
         let foundUser = usersList.find(u => u.id === cleanId);
         let source = 'Supabase/Cache';
+
+        // Si no está, forzar una actualización directa desde Supabase por si es un usuario recién creado
+        if (!foundUser) {
+            console.log(`ID ${cleanId} not found in cache. Forcing fresh sync with Supabase...`);
+            const freshUsers = await syncUsers();
+            if (freshUsers) {
+                foundUser = freshUsers.find(u => u.id === cleanId);
+                if (foundUser) source = 'Live Supabase Fetch';
+            }
+        }
 
         if (!foundUser) {
             console.warn(`ID ${cleanId} not found in usersList. Checking local JSON fallback manually...`);

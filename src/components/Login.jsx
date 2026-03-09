@@ -7,9 +7,9 @@ const Login = () => {
     const [error, setError] = useState('');
     const { login } = useAuth();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = login(userId.toUpperCase());
+        const result = await login(userId.toUpperCase());
         if (!result.success) {
             setError(result.message);
         }
