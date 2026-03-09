@@ -11,25 +11,47 @@ export const AuthProvider = ({ children }) => {
 
     const syncUsers = async () => {
         try {
-            console.log('Attempting to sync with Supabase...');
-            const { data, error } = await supabase.from('users').select('*');
+            console.log('Attempting to sync with Supabase (Cache Busted)...');
+            // Adding a timestamp query to bust any aggressive CDN/Browser caching from Supabase REST API
+            const timestamp = new Date().getTime();
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                // Force fresh query
+                .order('id', { ascending: true })
+                .limit(1000);
+
             if (error) throw error;
             if (data) {
                 console.log('Sync successful, users found:', data.length);
-                setUsersList(data);
-                localStorage.setItem('cached_users', JSON.stringify(data));
-                return data;
+
+                // Merge logical: Supabase is the source of truth for active users
+                // But we augment with local JSON if the database lacks 'rol_sistema' for some reason
+                const mergedUsers = data.map(dbUser => {
+                    if (!dbUser.rol_sistema) {
+                        const localMatch = localUsers.find(u => u.id === dbUser.id);
+                        if (localMatch && localMatch.rol_sistema) {
+                            return { ...dbUser, rol_sistema: localMatch.rol_sistema };
+                        }
+                        return { ...dbUser, rol_sistema: 'residente' };
+                    }
+                    return dbUser;
+                });
+
+                setUsersList(mergedUsers);
+                localStorage.setItem('cached_users', JSON.stringify(mergedUsers));
+                return mergedUsers;
             }
         } catch (error) {
-            console.error('Supabase sync failed:', error.message);
+            console.error('Supabase sync failed (offline or network error):', error.message);
             const cached = localStorage.getItem('cached_users');
             if (cached) {
-                console.log('Using cached users from localStorage');
+                console.log('Using cached users from localStorage (Offline Mode)');
                 const list = JSON.parse(cached);
                 setUsersList(list);
                 return list;
             } else {
-                console.log('No cache found, using local JSON fallback:', localUsers);
+                console.log('No cache found, using local JSON fallback! Warning: This might allow deleted users.');
                 setUsersList(localUsers);
                 return localUsers;
             }
@@ -44,7 +66,17 @@ export const AuthProvider = ({ children }) => {
                 console.log('Found saved user:', parsed);
                 setUser(parsed);
             }
-            await syncUsers(); // Forces a refresh of the users list on load
+
+            // Always try to fetch fresh users on app load
+            if (navigator.onLine) {
+                await syncUsers();
+            } else {
+                // Initial load offline fallback
+                const cached = localStorage.getItem('cached_users');
+                if (cached) setUsersList(JSON.parse(cached));
+                else setUsersList(localUsers);
+            }
+
             setLoading(false);
         };
 
@@ -80,13 +112,13 @@ export const AuthProvider = ({ children }) => {
         const mappedIds = usersList.map(u => u.id);
         console.log('Available IDs:', mappedIds);
 
-        // Intenta buscar en Supabase list primero
+        // Intenta buscar en lista ya sincronizada primero
         let foundUser = usersList.find(u => u.id === cleanId);
         let source = 'Supabase/Cache';
 
-        // Si no está, forzar una actualización directa desde Supabase por si es un usuario recién creado
-        if (!foundUser) {
-            console.log(`ID ${cleanId} not found in cache. Forcing fresh sync with Supabase...`);
+        // Si no está, forzamos ir a Supabase en vivo
+        if (!foundUser && navigator.onLine) {
+            console.log(`ID ${cleanId} not found in state. Forcing fresh sync with Supabase...`);
             const freshUsers = await syncUsers();
             if (freshUsers) {
                 foundUser = freshUsers.find(u => u.id === cleanId);
@@ -94,12 +126,14 @@ export const AuthProvider = ({ children }) => {
             }
         }
 
-        if (!foundUser) {
-            console.warn(`ID ${cleanId} not found in usersList. Checking local JSON fallback manually...`);
+        // Solo permitir login desde local JSON si estamos genuinamente offline o la BD falló por completo
+        // NO permitir si Supabase respondió correctamente pero el usuario no está.
+        if (!foundUser && !navigator.onLine) {
+            console.warn(`Device offline. Checking local JSON fallback manually for ID ${cleanId}...`);
             foundUser = localUsers.find(u => u.id === cleanId);
             if (foundUser) {
-                source = 'Local JSON Override';
-                console.log('User found in local JSON fallback.');
+                source = 'Local JSON Override (Offline Mode)';
+                console.log('User found in local JSON fallback during offline mode.');
             }
         }
 
@@ -107,19 +141,8 @@ export const AuthProvider = ({ children }) => {
             console.log(`Login successful for: ${foundUser.nombre} (Source: ${source})`);
 
             let finalUser = { ...foundUser };
-            // Asegurarse de que rol_sistema exista.
-            if (!finalUser.rol_sistema) {
-                const localMatch = localUsers.find(u => u.id === cleanId);
-                if (localMatch && localMatch.rol_sistema) {
-                    finalUser.rol_sistema = localMatch.rol_sistema;
-                    console.log('Merged local role:', finalUser.rol_sistema);
-                } else {
-                    finalUser.rol_sistema = 'residente';
-                    console.log('Applied default role: residente');
-                }
-            } else {
-                console.log('Role from DB exists:', finalUser.rol_sistema);
-            }
+            // El rol ya debería estar mezclado gracias a syncUsers, pero por si acaso viene del JSON local directo:
+            if (!finalUser.rol_sistema) finalUser.rol_sistema = 'residente';
 
             console.log('Setting final user state:', finalUser);
             setUser(finalUser);
