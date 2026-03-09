@@ -24,7 +24,7 @@ const Dashboard = () => {
   }, []);
 
   const handleActionClick = () => {
-    if (user?.rol_sistema === 'visitador') {
+    if (user?.rol_sistema?.toLowerCase() === 'visitador') {
       navigate('/visita');
     } else {
       navigate('/obra');
@@ -37,15 +37,15 @@ const Dashboard = () => {
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-brand-blue)]/10 rounded-full blur-3xl group-hover:bg-[var(--color-brand-blue)]/20 transition-all duration-700"></div>
         <div className="relative z-10">
           <div className="mb-4">
-            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${user?.rol_sistema === 'visitador' ? 'bg-[var(--color-brand-green)]/10 text-[var(--color-brand-green)] border-[var(--color-brand-green)]/20' : 'bg-[var(--color-brand-blue)]/10 text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20'}`}>
+            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${user?.rol_sistema?.toLowerCase() === 'visitador' ? 'bg-[var(--color-brand-green)]/10 text-[var(--color-brand-green)] border-[var(--color-brand-green)]/20' : 'bg-[var(--color-brand-blue)]/10 text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20'}`}>
               Perfil Activo: {user?.rol_sistema || 'residente'}
             </span>
           </div>
           <h2 className="text-2xl font-black mb-2 flex items-center gap-3 tracking-tight text-[var(--color-brand-blue)]">
-            {user?.rol_sistema === 'visitador' ? 'Visita Técnica' : 'Bitácora de Campo'}
+            {user?.rol_sistema?.toLowerCase() === 'visitador' ? 'Visita Técnica' : 'Bitácora de Campo'}
           </h2>
           <p className="text-sm text-[var(--color-text-muted)] mb-8 max-w-xs leading-relaxed">
-            {user?.rol_sistema === 'visitador'
+            {user?.rol_sistema?.toLowerCase() === 'visitador'
               ? 'Registro oficial de visita de terreno.'
               : 'Registro oficial de actividades y geolocalización SunSite.'}
           </p>
