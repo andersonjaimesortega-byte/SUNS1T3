@@ -12,8 +12,7 @@ export const AuthProvider = ({ children }) => {
     const syncUsers = async () => {
         try {
             console.log('Attempting to sync with Supabase (Cache Busted)...');
-            // Adding a timestamp query to bust any aggressive CDN/Browser caching from Supabase REST API
-            const timestamp = new Date().getTime();
+            // Forçamos refresco desde DB eliminando dependencias de caché
             const { data, error } = await supabase
                 .from('users')
                 .select('*')
@@ -126,14 +125,13 @@ export const AuthProvider = ({ children }) => {
             }
         }
 
-        // Solo permitir login desde local JSON si estamos genuinamente offline o la BD falló por completo
-        // NO permitir si Supabase respondió correctamente pero el usuario no está.
-        if (!foundUser && !navigator.onLine) {
-            console.warn(`Device offline. Checking local JSON fallback manually for ID ${cleanId}...`);
+        // If user not found after fresh Supabase sync, fallback to local JSON regardless of online status
+        if (!foundUser) {
+            console.warn(`User ID ${cleanId} not found in Supabase. Checking local JSON fallback...`);
             foundUser = localUsers.find(u => u.id === cleanId);
             if (foundUser) {
-                source = 'Local JSON Override (Offline Mode)';
-                console.log('User found in local JSON fallback during offline mode.');
+                source = 'Local JSON Fallback (Online/Offline)';
+                console.log('User found in local JSON fallback.');
             }
         }
 
