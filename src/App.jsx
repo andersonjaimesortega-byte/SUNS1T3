@@ -104,7 +104,7 @@ const Dashboard = () => {
 };
 
 const Layout = ({ children }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
