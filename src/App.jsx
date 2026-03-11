@@ -62,14 +62,7 @@ const Dashboard = () => {
           <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] group-hover:text-[var(--color-text)]">Historial de Reportes</span>
         </button>
 
-        <button
-          className="flex flex-col items-center justify-center p-8 bg-slate-50 border border-[var(--color-border)] rounded-[32px] opacity-40 cursor-not-allowed gap-4 group"
-        >
-          <div className="p-4 bg-white rounded-2xl">
-            <Settings className="w-8 h-8 text-slate-300" />
-          </div>
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Próximamente</span>
-        </button>
+
       </nav>
 
       {recentReports.length > 0 && (
@@ -128,12 +121,12 @@ const Layout = ({ children }) => {
             </div>
           </div>
           <button
-            onClick={() => navigate('/settings')}
-            className={`p-2.5 rounded-xl transition-all active:scale-95 text-[var(--color-text-muted)] hover:text-[var(--color-quoia-primary)] hover:bg-[var(--color-quoia-primary)]/10 flex items-center gap-2`}
-            title="Mi Perfil"
+            onClick={logout}
+            className={`p-2.5 rounded-xl transition-all active:scale-95 text-[var(--color-error)] hover:bg-[var(--color-error)]/10 flex items-center gap-2`}
+            title="Cerrar Sesión"
           >
-            <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Mi Perfil</span>
-            <User className="w-5 h-5" />
+            <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Salir</span>
+            <LogOut className="w-5 h-5" />
           </button>
         </div>
       </header>
