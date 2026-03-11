@@ -38,7 +38,30 @@ export const optimizeText = async (text, fieldType = 'general') => {
         'todo bien': 'bajo parámetros de normalidad',
         'listo': 'completado al 100%',
         'hicimos': 'se ejecutó la labor de',
-        'hace falta': 'se evidencia carencia de'
+        'hace falta': 'se evidencia carencia de',
+        // New Solar/Construction Terms
+        'paneles': 'módulos fotovoltaicos',
+        'panel': 'módulo fotovoltaico',
+        'vidrio': 'superficie vítrea del módulo',
+        'caja': 'caja de conexiones (Junction Box)',
+        'cable': 'conductor eléctrico DC',
+        'cables': 'conductores eléctricos',
+        'tubo': 'tubería conduit EMT/IMC',
+        'tubería': 'canalización técnica',
+        'tierra': 'sistema de puesta a tierra (SPT)',
+        'hueco': 'excavación técnica',
+        'huecos': 'excavaciones para cimentación',
+        'cemento': 'mezcla de concreto estructural',
+        'hierro': 'refuerzo de acero corrugado',
+        'amarrar': 'fijación y aseguramiento de',
+        'atornillar': 'anclaje mediante torque controlado',
+        'probar': 'realizar pruebas de continuidad y aislamiento',
+        'prender': 'puesta en marcha (Commissioning)',
+        'torcido': 'desviación de alineamiento',
+        'sucio': 'presencia de material particulado',
+        'limpiar': 'labores de mantenimiento y limpieza',
+        'sol': 'irradiación solar directa',
+        'caliente': 'estrés térmico detectado'
     };
 
     // Apply vocabulary mapping
@@ -55,8 +78,8 @@ export const optimizeText = async (text, fieldType = 'general') => {
     switch (fieldType) {
         case 'actividades':
             processed = processed
-                .replace(/(?:y |se ejecutó la labor de |se procedió con la instalación de )/gi, '\n• ')
-                .replace(/\. /g, '.\n• ')
+                .replace(/(?:y |se ejecutó la labor de |se procedió con la instalación de |tambi[eé]n |adem[aá]s )/gi, '\n• ')
+                .replace(/([.!?])\s+(?=[A-Z])/g, '$1\n• ')
                 .split('\n')
                 .filter(line => line.length > 5)
                 .map(line => {
