@@ -27,14 +27,15 @@ export const AuthProvider = ({ children }) => {
                 // Merge logical: Supabase is the source of truth for active users
                 // But we augment with local JSON if the database lacks 'rol_sistema' for some reason
                 const mergedUsers = data.map(dbUser => {
+                    const normalizedRole = dbUser.rol_sistema?.toLowerCase() || 'residente';
                     if (!dbUser.rol_sistema) {
                         const localMatch = localUsers.find(u => u.id === dbUser.id);
                         if (localMatch && localMatch.rol_sistema) {
-                            return { ...dbUser, rol_sistema: localMatch.rol_sistema };
+                            return { ...dbUser, rol_sistema: localMatch.rol_sistema.toLowerCase() };
                         }
                         return { ...dbUser, rol_sistema: 'residente' };
                     }
-                    return dbUser;
+                    return { ...dbUser, rol_sistema: normalizedRole };
                 });
 
                 setUsersList(mergedUsers);

@@ -59,17 +59,16 @@ const Dashboard = () => {
           <div className="p-4 bg-[var(--color-background)] rounded-2xl group-hover:bg-[var(--color-brand-blue)]/10 transition-colors">
             <History className="w-8 h-8 text-[var(--color-brand-blue)]" />
           </div>
-          <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] group-hover:text-[var(--color-text)]">Historial</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] group-hover:text-[var(--color-text)]">Historial de Reportes</span>
         </button>
 
         <button
-          onClick={() => navigate('/settings')}
-          className="flex flex-col items-center justify-center p-8 bg-white border border-[var(--color-border)] rounded-[32px] hover:border-[var(--color-brand-blue)]/30 transition-all active:scale-95 gap-4 group"
+          className="flex flex-col items-center justify-center p-8 bg-slate-50 border border-[var(--color-border)] rounded-[32px] opacity-40 cursor-not-allowed gap-4 group"
         >
-          <div className="p-4 bg-[var(--color-background)] rounded-2xl group-hover:bg-[var(--color-brand-blue)]/10 transition-colors">
-            <Settings className="w-8 h-8 text-[var(--color-brand-blue)]" />
+          <div className="p-4 bg-white rounded-2xl">
+            <Settings className="w-8 h-8 text-slate-300" />
           </div>
-          <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] group-hover:text-[var(--color-text)]">Ingeniero</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Próximamente</span>
         </button>
       </nav>
 
@@ -130,10 +129,11 @@ const Layout = ({ children }) => {
           </div>
           <button
             onClick={() => navigate('/settings')}
-            className={`p-2.5 rounded-xl transition-all active:scale-95 text-[var(--color-text-muted)] hover:text-[var(--color-quoia-primary)] hover:bg-[var(--color-quoia-primary)]/10`}
-            title="Ajustes"
+            className={`p-2.5 rounded-xl transition-all active:scale-95 text-[var(--color-text-muted)] hover:text-[var(--color-quoia-primary)] hover:bg-[var(--color-quoia-primary)]/10 flex items-center gap-2`}
+            title="Mi Perfil"
           >
-            <Settings className="w-5 h-5" />
+            <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Mi Perfil</span>
+            <User className="w-5 h-5" />
           </button>
         </div>
       </header>
