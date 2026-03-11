@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import ReportForm from './components/ReportForm';
-import VisitaForm from './components/VisitaForm';
 import HistoryView from './components/HistoryView';
 import SettingsView from './components/SettingsView';
 import { generateReportPDF, generateReportFile } from './utils/PdfGenerator';
@@ -24,11 +23,7 @@ const Dashboard = () => {
   }, []);
 
   const handleActionClick = () => {
-    if (user?.rol_sistema?.toLowerCase() === 'visitador') {
-      navigate('/visita');
-    } else {
-      navigate('/obra');
-    }
+    navigate('/obra');
   };
 
   return (
@@ -37,17 +32,15 @@ const Dashboard = () => {
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-brand-blue)]/10 rounded-full blur-3xl group-hover:bg-[var(--color-brand-blue)]/20 transition-all duration-700"></div>
         <div className="relative z-10">
           <div className="mb-4">
-            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${user?.rol_sistema?.toLowerCase() === 'visitador' ? 'bg-[var(--color-brand-green)]/10 text-[var(--color-brand-green)] border-[var(--color-brand-green)]/20' : 'bg-[var(--color-brand-blue)]/10 text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20'}`}>
+            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border bg-[var(--color-brand-blue)]/10 text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20">
               Perfil Activo: {user?.rol_sistema || 'residente'}
             </span>
           </div>
           <h2 className="text-2xl font-black mb-2 flex items-center gap-3 tracking-tight text-[var(--color-brand-blue)]">
-            {user?.rol_sistema?.toLowerCase() === 'visitador' ? 'Visita Técnica' : 'Bitácora de Campo'}
+            Bitácora de Campo
           </h2>
           <p className="text-sm text-[var(--color-text-muted)] mb-8 max-w-xs leading-relaxed">
-            {user?.rol_sistema?.toLowerCase() === 'visitador'
-              ? 'Registro oficial de visita de terreno.'
-              : 'Registro oficial de actividades y geolocalización SunSite.'}
+            Registro oficial de actividades y geolocalización SunSite.
           </p>
           <button
             onClick={handleActionClick}
@@ -261,7 +254,6 @@ const AppContent = () => {
     <Routes>
       <Route path="/" element={<Layout><Dashboard /></Layout>} />
       <Route path="/obra" element={<Layout><ReportForm onBack={() => navigate('/')} onSave={handleSaveReport} /></Layout>} />
-      <Route path="/visita" element={<Layout><VisitaForm onBack={() => navigate('/')} onSave={handleSaveReport} /></Layout>} />
       <Route path="/history" element={<Layout><HistoryView onBack={() => navigate('/')} user={user} /></Layout>} />
       <Route path="/settings" element={<Layout><SettingsView onBack={() => navigate('/')} /></Layout>} />
       <Route path="/success" element={<Layout><SuccessView lastReport={lastReport} /></Layout>} />
