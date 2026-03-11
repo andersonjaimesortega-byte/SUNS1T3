@@ -1,0 +1,11 @@
+services:
+  - type: static
+    name: sunsite-app
+    env: static
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        fromContext: VITE_SUPABASE_URL
+      - key: VITE_SUPABASE_ANON_KEY
+        fromContext: VITE_SUPABASE_ANON_KEY
