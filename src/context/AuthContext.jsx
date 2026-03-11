@@ -27,14 +27,15 @@ export const AuthProvider = ({ children }) => {
                 // Merge logical: Supabase is the source of truth for active users
                 // But we augment with local JSON if the database lacks 'rol_sistema' for some reason
                 const mergedUsers = data.map(dbUser => {
+                    const normalizedRole = dbUser.rol_sistema?.toLowerCase() || 'residente';
                     if (!dbUser.rol_sistema) {
                         const localMatch = localUsers.find(u => u.id === dbUser.id);
                         if (localMatch && localMatch.rol_sistema) {
-                            return { ...dbUser, rol_sistema: localMatch.rol_sistema };
+                            return { ...dbUser, rol_sistema: localMatch.rol_sistema.toLowerCase() };
                         }
                         return { ...dbUser, rol_sistema: 'residente' };
                     }
-                    return dbUser;
+                    return { ...dbUser, rol_sistema: normalizedRole };
                 });
 
                 setUsersList(mergedUsers);
@@ -125,14 +126,13 @@ export const AuthProvider = ({ children }) => {
             }
         }
 
-        // Solo permitir login desde local JSON si estamos genuinamente offline o la BD falló por completo
-        // NO permitir si Supabase respondió correctamente pero el usuario no está.
-        if (!foundUser && !navigator.onLine) {
-            console.warn(`Device offline. Checking local JSON fallback manually for ID ${cleanId}...`);
+        // If user not found after fresh Supabase sync, fallback to local JSON regardless of online status
+        if (!foundUser) {
+            console.warn(`User ID ${cleanId} not found in Supabase. Checking local JSON fallback...`);
             foundUser = localUsers.find(u => u.id === cleanId);
             if (foundUser) {
-                source = 'Local JSON Override (Offline Mode)';
-                console.log('User found in local JSON fallback during offline mode.');
+                source = 'Local JSON Fallback (Online/Offline)';
+                console.log('User found in local JSON fallback.');
             }
         }
 
