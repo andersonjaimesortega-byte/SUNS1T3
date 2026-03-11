@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const initAuth = async () => {
-            const savedUser = localStorage.getItem('minigranja_user');
+            const savedUser = localStorage.getItem('sunsite_user');
             if (savedUser) {
                 const parsed = JSON.parse(savedUser);
                 console.log('Found saved user:', parsed);
@@ -143,9 +143,7 @@ export const AuthProvider = ({ children }) => {
             // El rol ya debería estar mezclado gracias a syncUsers, pero por si acaso viene del JSON local directo:
             if (!finalUser.rol_sistema) finalUser.rol_sistema = 'residente';
 
-            console.log('Setting final user state:', finalUser);
             setUser(finalUser);
-            localStorage.setItem('minigranja_user', JSON.stringify(finalUser));
             localStorage.setItem('sunsite_user', JSON.stringify(finalUser));
             return { success: true };
         }
